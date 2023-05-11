@@ -1,0 +1,22 @@
+{
+	"name": "JetGuten",
+	"version": "1.0.0",
+	"license": "GPL-2.0-or-later",
+	"main": "assets/dev/js/main.js",
+	"devDependencies": {
+		"@babel/core": "^7.20.2",
+		"@babel/plugin-proposal-class-properties": "^7.18.6",
+		"@babel/plugin-transform-react-jsx": "^7.19.0",
+		"@babel/preset-env": "^7.20.2",
+		"babel-loader": "^9.1.0",
+		"webpack": "^5.78.0",
+		"webpack-cli": "^5.0.0"
+	},
+	"scripts": {
+		"dev": "webpack --mode development --progress -w",
+		"build": "webpack --mode production --progress -w"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^4.1.0"
+	}
+}

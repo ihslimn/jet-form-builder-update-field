@@ -1,0 +1,39 @@
+{
+	"name": "jet-engine/section",
+	"title": "Section",
+	"icon": "list-view",
+	"category": "jet-engine",
+	"keywords": [ "container", "section", "box" ],
+	"attributes": {
+		"layout": {
+			"type": "string",
+			"default": "fullwidth"
+		},
+		"content_width": {
+			"type": "string",
+			"default": "1200px"
+		},
+		"background_image_url": {
+			"type": "sting"
+		},
+		"background_image_id": {
+			"type": "number"
+		},
+		"background_settings": {
+			"type": "object",
+			"default": {}
+		},
+		"background_color": {
+			"type": "string"
+		},
+		"custom_background_color": {
+			"type": "string"
+		},
+		"html_tag": {
+			"type": "string",
+			"default": "section"
+		}
+	},
+	"style": "jet-engine-frontend",
+	"script": "jet-engine-frontend"
+}

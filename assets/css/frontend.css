@@ -1,0 +1,3 @@
+body:not(.elementor-editor-active) .jec-hidden {
+        display: none;
+}

@@ -1,0 +1,15 @@
+//Unused - import './plugins/sidebar';
+
+import registerAttribute from './attributes';
+import './panel.js';
+import './controls';
+
+const {
+	      addFilter,
+      } = wp.hooks;
+
+addFilter(
+	'blocks.registerBlockType',
+	'jet-form-builder/switch-page-on-change-support',
+	registerAttribute,
+);

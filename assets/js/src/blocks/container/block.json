@@ -1,0 +1,87 @@
+{
+	"name": "jet-engine/container",
+	"title": "Flexible Container",
+	"icon": "list-view",
+	"category": "jet-engine",
+	"keywords": [ "container", "section", "box" ],
+	"attributes": {
+		"content_direction": {
+			"type": "string",
+			"default": "vertical"
+		},
+		"content_h_alignment": {
+			"type": "string",
+			"default": "flex-start"
+		},
+		"content_v_alignment": {
+			"type": "string",
+			"default": "flex-start"
+		},
+		"height": {
+			"type": "string",
+			"default": "auto"
+		},
+		"min_height": {
+			"type": "string",
+			"default": ""
+		},
+		"fixed_height": {
+			"type": "string",
+			"default": ""
+		},
+		"width": {
+			"type": "string",
+			"default": "fullwidth"
+		},
+		"min_width": {
+			"type": "string",
+			"default": ""
+		},
+		"fixed_width": {
+			"type": "string",
+			"default": ""
+		},
+		"background_image_url": {
+			"type": "sting"
+		},
+		"background_image_id": {
+			"type": "number"
+		},
+		"background_settings": {
+			"type": "object",
+			"default": {}
+		},
+		"background_overlay_opacity": {
+			"type": "number",
+			"default": 0.5
+		},
+		"background_color": {
+			"type": "string"
+		},
+		"custom_background_color": {
+			"type": "string"
+		},
+		"background_gradient": {
+			"type": "string"
+		},
+		"custom_background_gradient": {
+			"type": "string"
+		},
+		"html_tag": {
+			"type": "string",
+			"default": "section"
+		},
+		"items_gap": {
+			"type": "string",
+			"default": ""
+		},
+		"section_url": {
+			"type": "string"
+		},
+		"section_url_target": {
+			"type": "string"
+		}
+	},
+	"style": "jet-engine-frontend",
+	"script": "jet-engine-frontend"
+}
