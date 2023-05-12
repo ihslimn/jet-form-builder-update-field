@@ -1,7 +1,6 @@
 //Unused - import './plugins/sidebar';
 
 import registerAttribute from './attributes';
-import './panel.js';
 import './controls';
 
 const {

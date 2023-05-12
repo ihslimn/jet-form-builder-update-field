@@ -1,20 +1,26 @@
 import { FIELD_TO_LISTEN } from './constants';
+import { SUPPORTED_BLOCKS } from './constants';
 
 const { __ } = wp.i18n;
 const { addFilter } = wp.hooks;
 const { Fragment } = wp.element;
 const { InspectorAdvancedControls } = wp.blockEditor;
 const { createHigherOrderComponent } = wp.compose;
-const { TextControl } = wp.components;
 
 const { InspectorControls } = wp.blockEditor;
-const { Panel, PanelRow, PanelBody } = wp.components;
+const { TextControl, Panel, PanelRow, PanelBody } = wp.components;
 
 const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 
 
 
 	return ( props ) => {
+
+		let blockName = props.name;
+
+		if ( ! SUPPORTED_BLOCKS.includes( blockName ) ) {
+			return ( <BlockEdit { ...props } /> );
+		}
 
 		const {
 			attributes,
