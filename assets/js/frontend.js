@@ -2,20 +2,21 @@
 
 	function( $ ) {
 
-		$( window ).on( 'jet-form-builder/after-init', init );
+		$( window ).on( 'jet-form-builder/after-init', setWatchers );
 
-		function clearFieldOptions( fieldName ) {
-			$( '[name="' + fieldName + '"] option:gt(0)' ).remove();
+		function clearFieldOptions( $updatedField, fieldName ) {
+			$updatedField.find( '[name="' + fieldName + '"] option' ).slice(1).remove();
 		}
 
-		function init( initEvent, $scope, observable ) {
+		let alreadyWatched = {};
+
+		function setWatchers( initEvent, $scope, observable ) {
 
 			if ( ! observable.form ) {
 				return;
 			}
 			
 			let $updatedFields = $scope.find( '.jet-form-builder-row[data-update-listen-to]' );
-				alreadyWatched = {};
 		
 			$updatedFields.each( function() {
 				
@@ -26,13 +27,13 @@
 					watchedName  = $updatedField.data( 'update-listen-to' ),
 					watchedField = observable.getInput( watchedName );
 				
-				alreadyWatched[formId] = alreadyWatched[formId] || {};
+				alreadyWatched[ formId ] = alreadyWatched[ formId ] || {};
 				
-				if ( ! watchedField || alreadyWatched?.[formId]?.[fieldName] ) {
+				if ( ! watchedField || alreadyWatched?.[ formId ]?.[ watchedName ] ) {
 					return;
 				}
 				
-				alreadyWatched[formId][fieldName] = true;
+				alreadyWatched[formId][watchedName] = true;
 				
 				watchedField.value.watch( function() {
 					
@@ -57,10 +58,10 @@
 						
 						if ( response.options ) {
 							
-							clearFieldOptions( fieldName );
+							clearFieldOptions( $updatedField, fieldName );
 	
 							$.each( response.options, function( i, option ) {
-								$( '[name="' + fieldName + '"]' ).append( $( "<option></option>" ).attr( "value", option.value ).text( option.label ) )
+								$updatedField.find( '[name="' + fieldName + '"]' ).append( $( "<option></option>" ).attr( "value", option.value ).text( option.label ) )
 							} );
 							
 						} else if ( response.block ) {
@@ -70,11 +71,19 @@
 							let replaced = {};
 
 							for ( let node of observable.rootNode.querySelectorAll( '[data-jfb-sync]' ) ) {
+								
 								let nodeName = node.dataset.fieldName,
 									replace  = ! replaced[ nodeName ];
+									
 								observable.observeInput( node, replace );
+								
 								replaced[ nodeName ] = true;
+
 							}
+
+							alreadyWatched[ formId ][ fieldName ] = false;
+
+							setWatchers( initEvent, $scope, observable );
 
 						}
 	

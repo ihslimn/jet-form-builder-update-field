@@ -56,6 +56,7 @@ class Endpoint {
 		$result = array(
 			'options' => false,
 			'block'   => false,
+			'item_id' => $item_id,
 		);
 
 		switch ( $block['blockName'] ) {
