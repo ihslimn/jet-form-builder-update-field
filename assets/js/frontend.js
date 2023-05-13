@@ -17,7 +17,7 @@
 			}
 			
 			let $updatedFields = $scope.find( '.jet-form-builder-row[data-update-field-addon-enabled]' );
-		
+
 			$updatedFields.each( function() {
 				
 				let $updatedField = $( this );
@@ -29,11 +29,13 @@
 				
 				alreadyWatched[ formId ] = alreadyWatched[ formId ] || {};
 				
-				if ( ! watchedField || alreadyWatched?.[ formId ]?.[ watchedName ] ) {
+				if ( ! watchedField || alreadyWatched?.[ formId ]?.[ watchedName ]?.[ fieldName ] ) {
 					return;
 				}
+
+				alreadyWatched[ formId ][ watchedName ] = alreadyWatched[ formId ][ watchedName ] || {};
 				
-				alreadyWatched[formId][watchedName] = true;
+				alreadyWatched[ formId ][ watchedName ][ fieldName ] = true;
 				
 				watchedField.value.watch( function() {
 					
@@ -89,7 +91,7 @@
 
 							}
 
-							alreadyWatched[ formId ][ fieldName ] = false;
+							alreadyWatched[ formId ][ fieldName ] = {};
 
 							setWatchers( initEvent, $scope, observable );
 
