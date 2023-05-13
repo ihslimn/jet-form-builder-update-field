@@ -63,6 +63,19 @@
 								$( '[name="' + fieldName + '"]' ).append( $( "<option></option>" ).attr( "value", option.value ).text( option.label ) )
 							} );
 							
+						} else if ( response.block ) {
+
+							$updatedField.html( response.block );
+
+							let replaced = {};
+
+							for ( let node of observable.rootNode.querySelectorAll( '[data-jfb-sync]' ) ) {
+								let nodeName = node.dataset.fieldName,
+									replace  = ! replaced[ nodeName ];
+								observable.observeInput( node, replace );
+								replaced[ nodeName ] = true;
+							}
+
 						}
 	
 					} ).catch( function ( e ) {
