@@ -1,6 +1,6 @@
 //Unused - import './plugins/sidebar';
 
-import registerAttribute from './attributes';
+import registerAttributes from './attributes';
 import './controls';
 
 const {
@@ -10,5 +10,5 @@ const {
 addFilter(
 	'blocks.registerBlockType',
 	'jet-form-builder/switch-page-on-change-support',
-	registerAttribute,
+	registerAttributes,
 );

@@ -59,7 +59,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 			$this->path = plugin_dir_path( __FILE__ );
 
-			require $this->path . 'rest-api/manager.php';
+			require $this->path . 'rest-api/endpoint.php';
 			new Endpoint();
 			require $this->path . 'additional-block-attributes.php';
 			new Additional_Block_Attributes();

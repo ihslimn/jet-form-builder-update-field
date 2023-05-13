@@ -16,7 +16,7 @@
 				return;
 			}
 			
-			let $updatedFields = $scope.find( '.jet-form-builder-row[data-update-listen-to]' );
+			let $updatedFields = $scope.find( '.jet-form-builder-row[data-update-field-addon-enabled]' );
 		
 			$updatedFields.each( function() {
 				
@@ -38,7 +38,7 @@
 				watchedField.value.watch( function() {
 					
 					if ( ! watchedField.value.current.length ) {
-						clearFieldOptions( fieldName );
+						clearFieldOptions( $updatedField, fieldName );
 						return;
 					}
 					
@@ -50,7 +50,6 @@
 					wp.apiFetch( {
 						method: 'get',
 						path: `/jet-form-builder-update-field-addon/v1/get-field?form_id=${formId}&field_name=${fieldName}&item_id=${itemId}`,
-						
 					} ).then( ( response ) => {
 	
 						$updatedField.css( 'opacity', 1 );
@@ -81,10 +80,23 @@
 
 							}
 
+							for ( const node of observable.rootNode.querySelectorAll( `[data-jfb-conditional]` ) ) {
+
+								const block = new JetFormBuilderAbstract.ConditionalBlock( node, observable );
+								
+								block.observe();
+								block.list.onChangeRelated();
+
+							}
+
 							alreadyWatched[ formId ][ fieldName ] = false;
 
 							setWatchers( initEvent, $scope, observable );
 
+						}
+
+						if ( ! watchedField.value.current.length ) {
+							clearFieldOptions( $updatedField, fieldName );
 						}
 	
 					} ).catch( function ( e ) {

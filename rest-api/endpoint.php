@@ -56,8 +56,11 @@ class Endpoint {
 		$result = array(
 			'options' => false,
 			'block'   => false,
-			'item_id' => $item_id,
 		);
+
+		if ( isset( $block['attrs']['jfb_update_fields_value_enabled'] ) ) {
+			$block['attrs']['default'] = $this->get_value( $block['attrs'], $item_id, $field_name, $form_id );
+		}
 
 		switch ( $block['blockName'] ) {
 			case 'jet-forms/select-field':
@@ -66,6 +69,45 @@ class Endpoint {
 			default:
 				$result['block'] = render_block( $block );
 		}
+
+		return $result;
+
+	}
+
+	public function get_value( $block_attrs, $item_id, $field_name, $form_id ) {
+
+		$result = '';
+
+		$callback = $block_attrs['jfb_update_fields_callback'];
+
+		if ( is_callable( $callback ) ) {
+			return call_user_func( $callback, $item_id, $field_name, $form_id );
+		}
+
+		$params = explode( '|', $callback );
+
+		if ( count( $params ) < 2 ) {
+			return $result;
+		}
+
+		$query_id = $params[0];
+		$property = $params[1];
+
+		$query = \Jet_Engine\Query_Builder\Manager::instance()->get_query_by_id( $query_id );
+
+		if ( ! $query ) {
+			return $result;
+		}
+
+		$query_items = $query->get_items();
+
+		if ( empty( $query_items ) ) {
+			return $result;
+		}
+
+		$vars = get_object_vars( $query_items[0] );
+
+		$result = $vars[ $property ] ?? '';
 
 		return $result;
 

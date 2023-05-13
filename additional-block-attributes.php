@@ -21,16 +21,23 @@ class Additional_Block_Attributes {
 
 	public function add_attributes( $block ) {
 
-		if ( ! empty( $block->block_attrs['jfb_update_fields_field_to_listen'] ) ) {
+		$attrs = $block->block_attrs;
 
-			$block->add_attribute( 'data-update-listen-to', $block->block_attrs['jfb_update_fields_field_to_listen'] );
-			$block->add_attribute( 'data-update-field-name', $block->block_attrs['name'] );
+		if ( empty( $attrs['jfb_update_fields_options_enabled'] ) && empty( $attrs['jfb_update_fields_value_enabled'] ) ) {
+			return;
+		}
 
-			if ( ! $this->script_enqueued ) {
-				$this->enqueue_script();
-				$this->script_enqueued = true;
-			}
+		$block->add_attribute( 'data-update-field-addon-enabled', 'true' );
 
+		$block->add_attribute( 'data-update-field-name', $attrs['name'] );
+
+		if ( ! $this->script_enqueued ) {
+			$this->enqueue_script();
+			$this->script_enqueued = true;
+		}
+
+		if ( ! empty( $attrs['jfb_update_fields_field_to_listen'] ) ) {
+			$block->add_attribute( 'data-update-listen-to', $attrs['jfb_update_fields_field_to_listen'] );
 		}
 
 	}
