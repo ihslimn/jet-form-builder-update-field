@@ -1,3 +1,4 @@
-body:not(.elementor-editor-active) .jec-hidden {
-        display: none;
+.jfb-updated-field {
+        opacity: 0.6;
+        pointer-events: none;
 }

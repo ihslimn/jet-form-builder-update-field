@@ -1,1 +1,116 @@
-(()=>{"use strict";var e="jfb_update_fields_options_enabled",t="jfb_update_fields_value_enabled",n="jfb_update_fields_field_to_listen",r="jfb_update_fields_callback",l={"jet-forms/select-field":"options","jet-forms/radio-field":"options","jet-forms/checkbox-field":"options","jet-forms/text-field":"value","jet-forms/textarea-field":"value","jet-forms/hidden-field":"value"};function o(e){return o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},o(e)}function i(e,t){var n=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter((function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable}))),n.push.apply(n,r)}return n}function a(e){for(var t=1;t<arguments.length;t++){var n=null!=arguments[t]?arguments[t]:{};t%2?i(Object(n),!0).forEach((function(t){u(e,t,n[t])})):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(n)):i(Object(n)).forEach((function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(n,t))}))}return e}function u(e,t,n){return(t=function(e){var t=function(e,t){if("object"!==o(e)||null===e)return e;var n=e[Symbol.toPrimitive];if(void 0!==n){var r=n.call(e,"string");if("object"!==o(r))return r;throw new TypeError("@@toPrimitive must return a primitive value.")}return String(e)}(e);return"symbol"===o(t)?t:String(t)}(t))in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}function c(e){return c="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},c(e)}function f(e,t,n){return(t=function(e){var t=function(e,t){if("object"!==c(e)||null===e)return e;var n=e[Symbol.toPrimitive];if(void 0!==n){var r=n.call(e,"string");if("object"!==c(r))return r;throw new TypeError("@@toPrimitive must return a primitive value.")}return String(e)}(e);return"symbol"===c(t)?t:String(t)}(t))in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}var p=wp.hooks.addFilter,m=wp.compose.createHigherOrderComponent,b=wp.blockEditor.InspectorControls,s=wp.components,d=s.TextControl,y=s.ToggleControl,v=s.Panel,w=s.PanelRow,g=s.PanelBody,h=m((function(o){return function(i){var a=i.name,u=l[a]||!1;if(!u)return wp.element.createElement(o,i);var c=i.attributes,p=i.setAttributes,m=i.isSelected;return wp.element.createElement(React.Fragment,null,wp.element.createElement(o,i),m&&wp.element.createElement(b,null,wp.element.createElement(v,null,wp.element.createElement(g,{title:"Field updater",initialOpen:!1},"options"===u&&wp.element.createElement(w,null,wp.element.createElement(y,{label:"Enable options updater",help:c[e]?"Enabled.":"Disabled.",checked:c[e],onChange:function(){p(f({},e,!c[e]))}})),"options"===u&&c[e]&&wp.element.createElement(w,null,wp.element.createElement(d,{label:"Field to listen",value:c[n],onChange:function(e){p(f({},n,e))}})),"value"===u&&wp.element.createElement(w,null,wp.element.createElement(y,{label:"Enable value updater",help:c[t]?"Enabled.":"Disabled.",checked:c[t],onChange:function(){p(f({},t,!c[t]))}})),"value"===u&&c[t]&&wp.element.createElement(w,null,wp.element.createElement(d,{label:"Field to listen",value:c[n],onChange:function(e){p(f({},n,e))}})),"value"===u&&c[t]&&wp.element.createElement(w,null,wp.element.createElement(d,{label:"Callback or query parameters",value:c[r],help:"Callback which parameters are $item_id (value of the field that is being listened to), $field_name (this field name), $form_id (this form ID). Alternatively JetEngine query_id|property to get a specified propery from the first object from query.",onChange:function(e){p(f({},r,e))}}))))))}}),"addControls");p("editor.BlockEdit","jet-form-builder/update-fields",h),(0,wp.hooks.addFilter)("blocks.registerBlockType","jet-form-builder/switch-page-on-change-support",(function(o,i){var c;return l[i]?(o.attributes=a(a({},o.attributes),{},(u(c={},e,{type:"boolean",default:!1}),u(c,t,{type:"boolean",default:!1}),u(c,n,{type:"string",default:""}),u(c,r,{type:"string",default:""}),c)),o):o}))})();
+/*
+ * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./attributes.js":
+/*!***********************!*\
+  !*** ./attributes.js ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants */ \"./constants.js\");\nfunction _typeof(obj) { \"@babel/helpers - typeof\"; return _typeof = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof(obj); }\nfunction ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }\nfunction _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }\nfunction _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\nfunction _toPropertyKey(arg) { var key = _toPrimitive(arg, \"string\"); return _typeof(key) === \"symbol\" ? key : String(key); }\nfunction _toPrimitive(input, hint) { if (_typeof(input) !== \"object\" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || \"default\"); if (_typeof(res) !== \"object\") return res; throw new TypeError(\"@@toPrimitive must return a primitive value.\"); } return (hint === \"string\" ? String : Number)(input); }\n\nfunction registerAttributes(settings, name) {\n  var _objectSpread2;\n  if (!_constants__WEBPACK_IMPORTED_MODULE_0__.SUPPORTED_BLOCKS[name]) {\n    return settings;\n  }\n  settings.attributes = _objectSpread(_objectSpread({}, settings.attributes), {}, (_objectSpread2 = {}, _defineProperty(_objectSpread2, _constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED, {\n    type: 'boolean',\n    default: false\n  }), _defineProperty(_objectSpread2, _constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED, {\n    type: 'boolean',\n    default: false\n  }), _defineProperty(_objectSpread2, _constants__WEBPACK_IMPORTED_MODULE_0__.FIELD_TO_LISTEN, {\n    type: 'string',\n    default: ''\n  }), _defineProperty(_objectSpread2, _constants__WEBPACK_IMPORTED_MODULE_0__.LISTEN_ALL, {\n    type: 'boolean',\n    default: false\n  }), _defineProperty(_objectSpread2, _constants__WEBPACK_IMPORTED_MODULE_0__.CALLBACK, {\n    type: 'string',\n    default: ''\n  }), _objectSpread2));\n  return settings;\n}\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (registerAttributes);\n\n//# sourceURL=webpack:///./attributes.js?");
+
+/***/ }),
+
+/***/ "./constants.js":
+/*!**********************!*\
+  !*** ./constants.js ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"CALLBACK\": () => (/* binding */ CALLBACK),\n/* harmony export */   \"FIELD_TO_LISTEN\": () => (/* binding */ FIELD_TO_LISTEN),\n/* harmony export */   \"LISTEN_ALL\": () => (/* binding */ LISTEN_ALL),\n/* harmony export */   \"OPTIONS_LISTENER_ENABLED\": () => (/* binding */ OPTIONS_LISTENER_ENABLED),\n/* harmony export */   \"SUPPORTED_BLOCKS\": () => (/* binding */ SUPPORTED_BLOCKS),\n/* harmony export */   \"VALUE_LISTENER_ENABLED\": () => (/* binding */ VALUE_LISTENER_ENABLED)\n/* harmony export */ });\nvar OPTIONS_LISTENER_ENABLED = 'jfb_update_fields_options_enabled';\nvar VALUE_LISTENER_ENABLED = 'jfb_update_fields_value_enabled';\nvar FIELD_TO_LISTEN = 'jfb_update_fields_field_to_listen';\nvar CALLBACK = 'jfb_update_fields_callback';\nvar LISTEN_ALL = 'jfb_update_fields_listen_all';\nvar SUPPORTED_BLOCKS = {\n  'jet-forms/select-field': 'options',\n  'jet-forms/radio-field': 'options',\n  'jet-forms/checkbox-field': 'options',\n  'jet-forms/text-field': 'value',\n  'jet-forms/textarea-field': 'value',\n  'jet-forms/hidden-field': 'value'\n};\n\n\n//# sourceURL=webpack:///./constants.js?");
+
+/***/ }),
+
+/***/ "./controls.js":
+/*!*********************!*\
+  !*** ./controls.js ***!
+  \*********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants */ \"./constants.js\");\nfunction _typeof(obj) { \"@babel/helpers - typeof\"; return _typeof = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof(obj); }\nfunction _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\nfunction _toPropertyKey(arg) { var key = _toPrimitive(arg, \"string\"); return _typeof(key) === \"symbol\" ? key : String(key); }\nfunction _toPrimitive(input, hint) { if (_typeof(input) !== \"object\" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || \"default\"); if (_typeof(res) !== \"object\") return res; throw new TypeError(\"@@toPrimitive must return a primitive value.\"); } return (hint === \"string\" ? String : Number)(input); }\n\n\nvar addFilter = wp.hooks.addFilter;\nvar createHigherOrderComponent = wp.compose.createHigherOrderComponent;\nvar InspectorControls = wp.blockEditor.InspectorControls;\nvar _wp$components = wp.components,\n  TextControl = _wp$components.TextControl,\n  ToggleControl = _wp$components.ToggleControl,\n  Panel = _wp$components.Panel,\n  PanelRow = _wp$components.PanelRow,\n  PanelBody = _wp$components.PanelBody;\nvar addControls = createHigherOrderComponent(function (BlockEdit) {\n  return function (props) {\n    var blockName = props.name,\n      supportType = _constants__WEBPACK_IMPORTED_MODULE_0__.SUPPORTED_BLOCKS[blockName] || false;\n    if (!supportType) {\n      return wp.element.createElement(BlockEdit, props);\n    }\n    var attributes = props.attributes,\n      setAttributes = props.setAttributes,\n      isSelected = props.isSelected;\n    return wp.element.createElement(React.Fragment, null, wp.element.createElement(BlockEdit, props), isSelected && wp.element.createElement(InspectorControls, null, wp.element.createElement(Panel, null, wp.element.createElement(PanelBody, {\n      title: \"Field updater\",\n      initialOpen: false\n    }, supportType === 'options' && wp.element.createElement(PanelRow, null, wp.element.createElement(ToggleControl, {\n      label: \"Enable options updater\",\n      help: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED] ? 'Enabled.' : 'Disabled.',\n      checked: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED],\n      onChange: function onChange() {\n        setAttributes(_defineProperty({}, _constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED, !attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED]));\n      }\n    })), supportType === 'value' && wp.element.createElement(PanelRow, null, wp.element.createElement(ToggleControl, {\n      label: \"Enable value updater\",\n      help: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED] ? 'Enabled.' : 'Disabled.',\n      checked: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED],\n      onChange: function onChange() {\n        setAttributes(_defineProperty({}, _constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED, !attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED]));\n      }\n    })), (attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED] || attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED]) && wp.element.createElement(PanelRow, null, wp.element.createElement(TextControl, {\n      label: \"Fields to listen\",\n      help: 'comma-separated',\n      value: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.FIELD_TO_LISTEN],\n      onChange: function onChange(newValue) {\n        setAttributes(_defineProperty({}, _constants__WEBPACK_IMPORTED_MODULE_0__.FIELD_TO_LISTEN, newValue));\n      }\n    })), (attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.OPTIONS_LISTENER_ENABLED] || attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED]) && wp.element.createElement(PanelRow, null, wp.element.createElement(ToggleControl, {\n      label: \"Listen all\",\n      help: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.LISTEN_ALL] ? 'Yes.' : 'No.',\n      checked: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.LISTEN_ALL],\n      onChange: function onChange() {\n        setAttributes(_defineProperty({}, _constants__WEBPACK_IMPORTED_MODULE_0__.LISTEN_ALL, !attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.LISTEN_ALL]));\n      }\n    })), supportType === 'value' && attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.VALUE_LISTENER_ENABLED] && wp.element.createElement(PanelRow, null, wp.element.createElement(TextControl, {\n      label: \"Callback or query parameters\",\n      value: attributes[_constants__WEBPACK_IMPORTED_MODULE_0__.CALLBACK],\n      help: 'Callback which parameters are $item_id (value of the field that is being listened to), $field_name (this field name), $form_id (this form ID). Alternatively JetEngine query_id|property to get a specified propery from the first object from query.',\n      onChange: function onChange(newValue) {\n        setAttributes(_defineProperty({}, _constants__WEBPACK_IMPORTED_MODULE_0__.CALLBACK, newValue));\n      }\n    }))))));\n  };\n}, 'addControls');\naddFilter('editor.BlockEdit', 'jet-form-builder/update-fields', addControls);\n\n//# sourceURL=webpack:///./controls.js?");
+
+/***/ }),
+
+/***/ "./main.js":
+/*!*****************!*\
+  !*** ./main.js ***!
+  \*****************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _attributes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./attributes */ \"./attributes.js\");\n/* harmony import */ var _controls__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./controls */ \"./controls.js\");\n//Unused - import './plugins/sidebar';\n\n\n\nvar addFilter = wp.hooks.addFilter;\naddFilter('blocks.registerBlockType', 'jet-form-builder/switch-page-on-change-support', _attributes__WEBPACK_IMPORTED_MODULE_0__[\"default\"]);\n\n//# sourceURL=webpack:///./main.js?");
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module can't be inlined because the eval devtool is used.
+/******/ 	var __webpack_exports__ = __webpack_require__("./main.js");
+/******/ 	
+/******/ })()
+;

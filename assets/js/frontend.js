@@ -2,115 +2,186 @@
 
 	function( $ ) {
 
-		$( window ).on( 'jet-form-builder/after-init', setWatchers );
+		$( window ).on( 'jet-form-builder/after-init', initWatchers );
 
-		function clearFieldOptions( $updatedField, fieldName ) {
-			$updatedField.find( '[name="' + fieldName + '"] option' ).slice(1).remove();
-		}
+		let fieldMap = {},
+			changed  = {};
 
-		let alreadyWatched = {};
+		function initWatchers( initEvent, $scope, observable ) {
 
-		function setWatchers( initEvent, $scope, observable ) {
+			const formId = observable.form.getFormId();
 
-			if ( ! observable.form ) {
-				return;
-			}
-			
-			let $updatedFields = $scope.find( '.jet-form-builder-row[data-update-field-addon-enabled]' );
+			changed[ formId ] = [];
 
-			$updatedFields.each( function() {
-				
-				let $updatedField = $( this );
-				
-				let fieldName    = $updatedField.data( 'update-field-name' ),
-					formId       = observable.form.getFormId(),
-					watchedName  = $updatedField.data( 'update-listen-to' ),
-					watchedField = observable.getInput( watchedName );
-				
-				alreadyWatched[ formId ] = alreadyWatched[ formId ] || {};
-				
-				if ( ! watchedField || alreadyWatched?.[ formId ]?.[ watchedName ]?.[ fieldName ] ) {
+			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
+
+				$( `[data-update-field-name="${node.dataset.updateFieldName}"]` ).on( 'change', function() {
+					console.log( node.dataset.updateFieldName + ' changed' );
+					changed[ formId ][ node.dataset.updateFieldName ] = true;
+				} );
+
+				if ( ! node.dataset.updateListenTo ) {
 					return;
 				}
 
-				alreadyWatched[ formId ][ watchedName ] = alreadyWatched[ formId ][ watchedName ] || {};
-				
-				alreadyWatched[ formId ][ watchedName ][ fieldName ] = true;
-				
-				watchedField.value.watch( function() {
-					
-					if ( ! watchedField.value.current.length ) {
-						clearFieldOptions( $updatedField, fieldName );
+				fieldMap[ formId ] ??= {};
+
+				node.dataset.updateListenTo.split(',').forEach( function( listened ) {
+					fieldMap[ formId ][ listened ] = true;
+				} );
+
+			} );
+
+			for ( const key in fieldMap[ formId ] ) {
+				setWatcher( observable.form.getFormId(), key );
+			}
+
+		}
+
+		function getFormValues( observable ) {
+
+			const formFields = observable.getInputs();
+
+			let formValues = {};
+
+			formFields.forEach( function( input ) {
+
+				if ( undefined === input?.value?.current ) {
+					return;
+				}
+
+				formValues[ input.name ] = input.value.current;
+
+			} );
+
+			return formValues;
+
+		}
+
+		function setWatcher( formId, watched ) {
+
+			const observable   = JetFormBuilder[ formId ],
+			      watchedField = observable.getInput( watched );
+
+			if ( ! watchedField?.value ) {
+				console.error( watched + ' - No value to watch' );
+				return;
+			}
+
+			watchedField.value.watch( function() {
+
+				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-listen-to]` ),
+				      formFields      = getFormValues( observable );
+
+				dependentFields.forEach( function( updatedNode ) {
+
+					const allWatched = updatedNode.dataset.updateListenTo.split(',');
+
+					if ( allWatched.indexOf( watched ) < 0 ) {
 						return;
 					}
-					
-					let itemId = watchedField.value.current;
-					
-					$updatedField.css( 'opacity', 0.6 );
-					$updatedField.css( 'pointer-events', 'none' );
-					
-					wp.apiFetch( {
-						method: 'get',
-						path: `/jet-form-builder-update-field-addon/v1/get-field?form_id=${formId}&field_name=${fieldName}&item_id=${itemId}`,
-					} ).then( ( response ) => {
-	
-						$updatedField.css( 'opacity', 1 );
-						$updatedField.css( 'pointer-events', 'auto' );
+
+					const updated      = updatedNode.dataset.updateFieldName,
+					      updatedField = observable.getInput( updated );
+
+					if ( updatedNode.dataset.updateListenAll ) {
 						
-						if ( response.options ) {
-							
-							clearFieldOptions( $updatedField, fieldName );
-	
-							$.each( response.options, function( i, option ) {
-								$updatedField.find( '[name="' + fieldName + '"]' ).append( $( "<option></option>" ).attr( "value", option.value ).text( option.label ) )
-							} );
-							
-						} else if ( response.block ) {
-
-							$updatedField.html( response.block );
-
-							let replaced = {};
-
-							for ( let node of observable.rootNode.querySelectorAll( '[data-jfb-sync]' ) ) {
-								
-								let nodeName = node.dataset.fieldName,
-									replace  = ! replaced[ nodeName ];
-									
-								observable.observeInput( node, replace );
-								
-								replaced[ nodeName ] = true;
-
+						let skip = false;
+						
+						allWatched.forEach( function( watched ) {
+							if ( ! skip && ! changed[ formId ][ watched ] ) {
+								skip = true;
 							}
-
-							for ( const node of observable.rootNode.querySelectorAll( `[data-jfb-conditional]` ) ) {
-
-								const block = new JetFormBuilderAbstract.ConditionalBlock( node, observable );
-								
-								block.observe();
-								block.list.onChangeRelated();
-
-							}
-
-							alreadyWatched[ formId ][ fieldName ] = {};
-
-							setWatchers( initEvent, $scope, observable );
-
+						} );
+						
+						if ( skip ) {
+							return;
 						}
 
-						if ( ! watchedField.value.current.length ) {
-							clearFieldOptions( $updatedField, fieldName );
+					}
+
+					updatedNode.classList.add( 'jfb-updated-field' );
+
+					wp.apiFetch( {
+						method: 'post',
+						path: '/jet-form-builder-update-field-addon/v1/get-field',
+						data: {
+							"form_id"     : formId,
+							"field_name"  : updated,
+							"form_fields" : formFields,
+						}
+					} ).then( ( response ) => {
+	
+						updatedNode.classList.remove( 'jfb-updated-field' );
+
+						if ( ! response.type ) {
+							throw new Error('Invalid response');
+						}
+
+						switch ( response.type ) {
+
+							case 'value':
+								updatedField.value.current = response.value;
+								break;
+							case 'block':
+								$( updatedNode ).html( $( response.value ).html() );
+								resetWatchers( observable, updatedNode );
+								break;
+
 						}
 	
 					} ).catch( function ( e ) {
-						console.log( e );
-						$updatedField.css( 'opacity', 1 );
-						$updatedField.css( 'pointer-events', 'auto' );
+						updatedNode.classList.remove( 'jfb-updated-field' );
+						console.error(e);
 					} );
-					
+
 				} );
-				
+
 			} );
-			
+
+		}
+
+		function resetWatchers( observable, fieldNode ) {
+
+			let replaced  = {},
+				fieldName = fieldNode.dataset.updateFieldName;
+
+			const {
+				doAction,
+			} = JetPlugins.hooks;
+
+			for ( const node of fieldNode.querySelectorAll( 'input' ) ) {
+				const replace  = ! replaced[ fieldName ];
+
+				let input = observable.pushInput( node, replace );
+
+				input.onObserve();
+				input.addListeners();
+				input.initNotifyValue();
+
+				input.value.make();
+
+				doAction( 'jet.fb.input.makeReactive', input );
+
+				doAction( 'jet.fb.observe.input.manual', observable );
+
+				if ( replace ) {
+					setWatcher( observable.form.getFormId(), fieldName );
+				}
+				
+				replaced[ fieldName ] = true;
+
+			}
+
+			for ( const node of observable.rootNode.querySelectorAll( '[data-jfb-conditional]' ) ) {
+
+				const block = new JetFormBuilderAbstract.ConditionalBlock( node, observable );
+				
+				block.observe();
+				block.list.onChangeRelated();
+
+			}
+
 		}
 
 	}

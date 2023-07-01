@@ -66,6 +66,16 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 			add_action( 'enqueue_block_editor_assets', array( $this, 'block_assets' ), 10 );
 
+			add_filter( 'jet-form-builder/frontend-settings', array( $this, 'enable_strict_mode' ) );
+
+		}
+
+		public function enable_strict_mode( $settings ) {
+
+			//$settings['strict_mode'] = true;
+
+			return $settings;
+
 		}
 
 		public function block_assets() {
@@ -77,6 +87,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 				'1.0.0',
 				false
 			);
+
 		}
 
 		public static function instance() {

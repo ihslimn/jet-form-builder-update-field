@@ -2,6 +2,7 @@ const OPTIONS_LISTENER_ENABLED = 'jfb_update_fields_options_enabled';
 const VALUE_LISTENER_ENABLED = 'jfb_update_fields_value_enabled';
 const FIELD_TO_LISTEN = 'jfb_update_fields_field_to_listen';
 const CALLBACK = 'jfb_update_fields_callback';
+const LISTEN_ALL = 'jfb_update_fields_listen_all';
 const SUPPORTED_BLOCKS = {
 				'jet-forms/select-field' : 'options',
 				'jet-forms/radio-field' : 'options',
@@ -15,6 +16,7 @@ export {
 	OPTIONS_LISTENER_ENABLED,
 	VALUE_LISTENER_ENABLED,
 	FIELD_TO_LISTEN,
+	LISTEN_ALL,
 	SUPPORTED_BLOCKS,
 	CALLBACK,
 };

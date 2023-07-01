@@ -14,37 +14,31 @@ class Endpoint {
 	}
 
 	public function register_route() {
+
 		register_rest_route( 
 			'jet-form-builder-update-field-addon/v1', 
 			'/get-field', 
 			array(
-				'methods'             => 'GET',
+				'methods'             => 'POST',
 				'callback'            => array( $this, 'callback' ),
 				'permission_callback' => '__return_true',
-				'args' => array(
-					'form_id' => array(
-						'required' => true,
-					),
-					'field_name' => array(
-						'required' => true,
-					),
-					'item_id' => array(
-						'required' => true,
-					),
-				),
+				'args' => array(),
 			)
 		);
+
 	}
 
 	public function callback( $request ) {
 
-		$params = $request->get_params();
+		$params = json_decode( $request->get_body() );
 
-		$form_id    = $params['form_id'];
-		$field_name = $params['field_name'];
-		$item_id    = $params['item_id'];
+		$form_id     = $params->form_id;
+		$field_name  = $params->field_name;
+		$form_fields = ( array ) $params->form_fields;
 
-		$_REQUEST['jfb_update_related_' . $field_name] = $item_id;
+		foreach ( $form_fields as $name => $value ) {
+			$_REQUEST['jfb_update_related_' . $name] = $value;
+		}
 
 		$blocks = \Jet_Form_Builder\Live_Form::instance()
 		                   ->set_form_id( $form_id )
@@ -59,18 +53,17 @@ class Endpoint {
 		);
 
 		if ( isset( $block['attrs']['jfb_update_fields_value_enabled'] ) ) {
-			$block['attrs']['default'] = $this->get_value( $block['attrs'], $item_id, $field_name, $form_id );
+			return array(
+				'type'  => 'value',
+				'value' => $this->get_value( $block['attrs'], $item_id, $field_name, $form_id ),
+			);
 		}
 
-		switch ( $block['blockName'] ) {
-			case 'jet-forms/select-field':
-				$result['options'] = $this->get_field_options( $block );
-				break;
-			default:
-				$result['block'] = render_block( $block );
-		}
-
-		return $result;
+		return array(
+			'type'    => 'block',
+			'value'   => render_block( $block ),
+			'default' => $block['attrs']['default'],
+		);
 
 	}
 
@@ -110,16 +103,6 @@ class Endpoint {
 		$result = $vars[ $property ] ?? '';
 
 		return $result;
-
-	}
-
-	public function get_field_options( $block ) {
-
-		$block_w = new \Jet_Form_Builder\Blocks\Types\Select_Field();
-		$block['attrs']['default'] = '';
-		$block_w->block_attrs = $block['attrs'];
-
-		return $block_w->get_field_options();
 
 	}
 

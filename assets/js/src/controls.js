@@ -1,4 +1,4 @@
-import { FIELD_TO_LISTEN, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, CALLBACK } from './constants';
+import { FIELD_TO_LISTEN, LISTEN_ALL, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, CALLBACK } from './constants';
 import { SUPPORTED_BLOCKS } from './constants';
 
 const { addFilter } = wp.hooks;
@@ -34,33 +34,22 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 						<Panel>
 							<PanelBody title="Field updater" initialOpen={ false }>
 								
-									{ supportType === 'options' &&
-										<PanelRow>
-											<ToggleControl
-												label="Enable options updater"
-												help={
-													attributes[ OPTIONS_LISTENER_ENABLED ]
-														? 'Enabled.'
-														: 'Disabled.'
-												}
-												checked={ attributes[ OPTIONS_LISTENER_ENABLED ] }
-												onChange={ () => {
-													setAttributes( { [ OPTIONS_LISTENER_ENABLED ] : ! attributes[ OPTIONS_LISTENER_ENABLED ] } );
-												} }
-											/>
-										</PanelRow> 
-									}
-									{ supportType === 'options' && attributes[ OPTIONS_LISTENER_ENABLED ] && 
-										<PanelRow>
-											<TextControl
-												label="Field to listen"
-												value={ attributes[ FIELD_TO_LISTEN ] }
-												onChange={ newValue => {
-													setAttributes( { [ FIELD_TO_LISTEN ] : newValue } );
-												} }
-											/>
-										</PanelRow> 
-									}
+								{ supportType === 'options' &&
+									<PanelRow>
+										<ToggleControl
+											label="Enable options updater"
+											help={
+												attributes[ OPTIONS_LISTENER_ENABLED ]
+													? 'Enabled.'
+													: 'Disabled.'
+											}
+											checked={ attributes[ OPTIONS_LISTENER_ENABLED ] }
+											onChange={ () => {
+												setAttributes( { [ OPTIONS_LISTENER_ENABLED ] : ! attributes[ OPTIONS_LISTENER_ENABLED ] } );
+											} }
+										/>
+									</PanelRow> 
+								}
 								{ supportType === 'value' &&
 									<PanelRow>
 										<ToggleControl
@@ -77,15 +66,32 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow>
 								}
-								{ supportType === 'value' && attributes[ VALUE_LISTENER_ENABLED ] && 
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && 
 									<PanelRow>
-											<TextControl
-												label="Field to listen"
-												value={ attributes[ FIELD_TO_LISTEN ] }
-												onChange={ newValue => {
-													setAttributes( { [ FIELD_TO_LISTEN ] : newValue } );
-												} }
-											/>
+										<TextControl
+											label="Fields to listen"
+											help={ 'comma-separated' }
+											value={ attributes[ FIELD_TO_LISTEN ] }
+											onChange={ newValue => {
+												setAttributes( { [ FIELD_TO_LISTEN ] : newValue } );
+											} }
+										/>
+									</PanelRow> 
+								}
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) &&
+									<PanelRow>
+										<ToggleControl
+											label="Listen all"
+											help={
+												attributes[ LISTEN_ALL ]
+													? 'Yes.'
+													: 'No.'
+											}
+											checked={ attributes[ LISTEN_ALL ] }
+											onChange={ () => {
+												setAttributes( { [ LISTEN_ALL ] : ! attributes[ LISTEN_ALL ] } );
+											} }
+										/>
 									</PanelRow>
 								}
 								{ supportType === 'value' && attributes[ VALUE_LISTENER_ENABLED ] && 
