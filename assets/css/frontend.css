@@ -2,3 +2,7 @@
         opacity: 0.6;
         pointer-events: none;
 }
+
+.empty-field .jet-form-builder__fields-group {
+        display: none;
+}

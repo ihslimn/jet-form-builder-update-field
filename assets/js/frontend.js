@@ -16,7 +16,6 @@
 			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
 
 				$( `[data-update-field-name="${node.dataset.updateFieldName}"]` ).on( 'change', function() {
-					console.log( node.dataset.updateFieldName + ' changed' );
 					changed[ formId ][ node.dataset.updateFieldName ] = true;
 				} );
 
@@ -84,7 +83,7 @@
 					const updated      = updatedNode.dataset.updateFieldName,
 					      updatedField = observable.getInput( updated );
 
-					if ( updatedNode.dataset.updateListenAll ) {
+					if ( updatedNode.dataset.updateListenAll === '1' ) {
 						
 						let skip = false;
 						
@@ -124,8 +123,19 @@
 								updatedField.value.current = response.value;
 								break;
 							case 'block':
-								$( updatedNode ).html( $( response.value ).html() );
-								resetWatchers( observable, updatedNode );
+								let html = $( response.value ).html() || '';
+								
+								$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
+								
+								if ( response.isEmpty ) {
+									updatedNode.classList.add('empty-field');
+ 								} else {
+									updatedNode.classList.remove('empty-field');
+								}
+
+								break;
+							case 'options':
+								updateSelectOptions( updatedNode, response.value );
 								break;
 
 						}
@@ -141,46 +151,17 @@
 
 		}
 
-		function resetWatchers( observable, fieldNode ) {
+		function clearSelectOptions( updatedNode ) {
+			$( updatedNode ).find( 'select option:gt(0)' ).remove();
+		}
 
-			let replaced  = {},
-				fieldName = fieldNode.dataset.updateFieldName;
+		function updateSelectOptions( updatedNode, options ) {
 
-			const {
-				doAction,
-			} = JetPlugins.hooks;
+			clearSelectOptions( updatedNode );
 
-			for ( const node of fieldNode.querySelectorAll( 'input' ) ) {
-				const replace  = ! replaced[ fieldName ];
-
-				let input = observable.pushInput( node, replace );
-
-				input.onObserve();
-				input.addListeners();
-				input.initNotifyValue();
-
-				input.value.make();
-
-				doAction( 'jet.fb.input.makeReactive', input );
-
-				doAction( 'jet.fb.observe.input.manual', observable );
-
-				if ( replace ) {
-					setWatcher( observable.form.getFormId(), fieldName );
-				}
-				
-				replaced[ fieldName ] = true;
-
-			}
-
-			for ( const node of observable.rootNode.querySelectorAll( '[data-jfb-conditional]' ) ) {
-
-				const block = new JetFormBuilderAbstract.ConditionalBlock( node, observable );
-				
-				block.observe();
-				block.list.onChangeRelated();
-
-			}
+			$.each( options, function( i, option ) {
+				$( updatedNode ).find( 'select' ).append( $( "<option></option>" ).attr( "value", option.value ).text( option.label ) )
+			} );
 
 		}
 

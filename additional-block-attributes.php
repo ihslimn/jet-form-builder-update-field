@@ -16,7 +16,26 @@ class Additional_Block_Attributes {
 		add_action( 'jet-form-builder/before-start-form-row', array( $this, 'add_attributes' ) );	
 		
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_script' ) );
+
+		add_filter( 'jet-form-builder/render/checkbox-field', array( $this, 'append_empty_option' ) );
+		add_filter( 'jet-form-builder/render/radio-field', array( $this, 'append_empty_option' ) );
 		
+	}
+
+	public function append_empty_option( $args ) {
+		
+		if ( empty( $args['class_name'] ) || ! empty( $args['field_options'] ) ) {
+			return $args;
+		}
+
+		if ( false !== strpos( $args['class_name'], 'empty-field' ) ) {
+			$args['field_options'] = array(
+				'' => 'This field has no options'
+			);
+		}
+
+		return $args;
+
 	}
 
 	public function add_attributes( $block ) {
@@ -25,6 +44,10 @@ class Additional_Block_Attributes {
 
 		if ( empty( $attrs['name'] ) ) {
 			return;
+		}
+
+		if ( false !== strpos( $attrs['class_name'], 'empty-field' ) && empty( $attrs['field_options'] ) ) {
+			$block->add_attribute( 'class', 'empty-field' );
 		}
 
 		$block->add_attribute( 'data-update-field-name', $attrs['name'] );

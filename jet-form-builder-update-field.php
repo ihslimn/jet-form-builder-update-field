@@ -72,7 +72,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public function enable_strict_mode( $settings ) {
 
-			//$settings['strict_mode'] = true;
+			$settings['strict_mode'] = true;
 
 			return $settings;
 
