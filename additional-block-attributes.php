@@ -24,17 +24,23 @@ class Additional_Block_Attributes {
 
 	public function append_empty_option( $args ) {
 		
-		if ( empty( $args['class_name'] ) || ! empty( $args['field_options'] ) ) {
+		if ( ! empty( $args['field_options'] ) ) {
 			return $args;
 		}
 
-		if ( false !== strpos( $args['class_name'], 'empty-field' ) ) {
+		if ( ! empty( $args['jfb_update_fields_options_enabled'] ) ) {
 			$args['field_options'] = array(
 				'' => 'This field has no options'
 			);
 		}
 
 		return $args;
+
+	}
+
+	public function add_class( $attrs ) {
+
+		return in_array( $attrs['type'] ?? '', array( 'radio-field', 'checkbox-field' ) );
 
 	}
 
@@ -46,14 +52,14 @@ class Additional_Block_Attributes {
 			return;
 		}
 
-		if ( false !== strpos( $attrs['class_name'], 'empty-field' ) && empty( $attrs['field_options'] ) ) {
-			$block->add_attribute( 'class', 'empty-field' );
-		}
-
 		$block->add_attribute( 'data-update-field-name', $attrs['name'] );
 
 		if ( empty( $attrs['jfb_update_fields_options_enabled'] ) && empty( $attrs['jfb_update_fields_value_enabled'] ) ) {
 			return;
+		}
+
+		if ( $this->add_class( $attrs ) && ! empty( $attrs['jfb_update_fields_options_enabled'] ) && empty( $attrs['field_options'] ) ) {
+			$block->add_attribute( 'class', 'empty-field' );
 		}
 
 		if ( ! $this->script_enqueued ) {

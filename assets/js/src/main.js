@@ -1,5 +1,3 @@
-//Unused - import './plugins/sidebar';
-
 import registerAttributes from './attributes';
 import './controls';
 

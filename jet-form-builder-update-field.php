@@ -39,11 +39,11 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public function jec_init() {
 
-			if ( ! function_exists( 'jet_engine' ) || ! function_exists( 'jet_form_builder' ) ) {
+			if ( ! function_exists( 'jet_form_builder' ) ) {
 
 				add_action( 'admin_notices', function() {
 					$class = 'notice notice-error';
-					$message = '<b>WARNING!</b> <b>JetFormBuilder - Update Fields</b> plugin requires <b>JetEngine</b> and <b>JetFormBuilder</b> plugins to work properly!';
+					$message = '<b>WARNING!</b> <b>JetFormBuilder - Update Fields</b> plugin requires <b>JetFormBuilder</b> plugin to be installed and activated.';
 					printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
 				} );
 

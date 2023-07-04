@@ -45,31 +45,35 @@ class Endpoint {
 			$_REQUEST['jfb_update_related_' . $name] = $value;
 		}
 
-		$blocks = \Jet_Form_Builder\Live_Form::instance()
-		                   ->set_form_id( $form_id )
-		                   ->set_specific_data_for_render( array() )
-		                   ->setup_fields();
+		$blocks = Block_Helper::get_blocks_by_post( $form_id );
 
+		$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $field_name, $blocks );
 
+		if ( isset( $block['attrs']['jfb_update_fields_value_enabled'] ) ) {
+			return array(
+				'type'  => 'value',
+				'value' => $this->get_value( $block['attrs'], $field_name, $form_id, $form_fields ),
+			);
+		}
 
 		// set up block structure
 		jet_fb_context()->set_parsers(
-			Block_Helper::get_blocks_by_post( $form_id )
+			$blocks
 		);
 		
 		try {
 			$parser = jet_fb_context()->resolve_parser( $params->field_name );
 		} catch ( Silence_Exception $exception ) {
-			// field not founded
+			// field not found
 			return array( 'error' => true );
 		}
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
 		/** @var Module $blocks */
-		$f_blocks = jet_form_builder()->module( 'blocks' );
+		$blocks_module = jet_form_builder()->module( 'blocks' );
 		
 		/** @var Base $field */
-		$field = $f_blocks->get_field_by_name( $parser->get_type() );
+		$field = $blocks_module->get_field_by_name( $parser->get_type() );
 		$field->set_block_data( $parser->get_settings() );
 		
 		switch ( $parser->get_type() ) {
@@ -98,39 +102,20 @@ class Endpoint {
 				);
 		}
 
-
-
-		
-		$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $field_name, $blocks );
-
-		$result = array(
-			'options' => false,
-			'block'   => false,
-		);
-
-		if ( isset( $block['attrs']['jfb_update_fields_value_enabled'] ) ) {
-			return array(
-				'type'  => 'value',
-				'value' => $this->get_value( $block['attrs'], $form_fields, $field_name, $form_id ),
-			);
-		}
-
-		return array(
-			'type'    => 'block',
-			'value'   => render_block( $block ),
-			'default' => $block['attrs']['default'],
-		);
-
 	}
 
-	public function get_value( $block_attrs, $item_id, $field_name, $form_id ) {
+	public function get_value( $block_attrs, $field_name, $form_id, $form_fields ) {
 
 		$result = '';
 
 		$callback = $block_attrs['jfb_update_fields_callback'];
 
 		if ( is_callable( $callback ) ) {
-			return call_user_func( $callback, $field_name, $form_fields, $form_id );
+			return call_user_func( $callback, $field_name, $form_id, $form_fields );
+		}
+
+		if ( ! class_exists( '\Jet_Engine\Query_Builder\Manager' ) ) {
+			return $result;
 		}
 
 		$params = explode( '|', $callback );
@@ -149,7 +134,7 @@ class Endpoint {
 		}
 
 		$query_items = $query->get_items();
-
+		
 		if ( empty( $query_items ) ) {
 			return $result;
 		}

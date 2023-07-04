@@ -123,6 +123,9 @@
 								updatedField.value.current = response.value;
 								break;
 							case 'block':
+
+								maybeClearInput( updatedField );
+
 								let html = $( response.value ).html() || '';
 								
 								$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
@@ -135,6 +138,7 @@
 
 								break;
 							case 'options':
+								maybeClearInput( updatedField );
 								updateSelectOptions( updatedNode, response.value );
 								break;
 
@@ -149,6 +153,16 @@
 
 			} );
 
+		}
+
+		function maybeClearInput( input ) {
+			
+			if ( ! input.value?.current ) {
+				return;
+			}
+
+			input.onClear();
+			
 		}
 
 		function clearSelectOptions( updatedNode ) {
