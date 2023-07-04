@@ -80,18 +80,20 @@ class Endpoint {
 			case 'checkbox-field':
 				$render = new Checkbox_Field_Render( $field );
 				$render->render_without_layout();
+				$options = is_array( $render->args['field_options'] ) ? $render->args['field_options'] : array();
 				return array(
 					'type'    => 'block',
 					'value'   => $render->render_options(),
-					'isEmpty' => ( count( $render->args['field_options'] ) < 2 && empty( array_key_first( $render->args['field_options'] ) ) ),
+					'isEmpty' => ( count( $options ) < 2 && empty( $options[0]['value'] ) ),
 				);
 			case 'radio-field':
 				$render = new Radio_Field_Render( $field );
 				$render->render_without_layout();
+				$options = is_array( $render->args['field_options'] ) ? $render->args['field_options'] : array();
 				return array(
 					'type'    => 'block',
 					'value'   => $render->render_options(),
-					'isEmpty' => ( count( $render->args['field_options'] ) < 2 && empty( array_key_first( $render->args['field_options'] ) ) ),
+					'isEmpty' => ( count( $options ) < 2 && empty( $options[0]['value'] ) ),
 				);
 			case 'select-field':
 				$render = new Select_Field_Render( $field );
