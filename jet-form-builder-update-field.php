@@ -51,6 +51,11 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 			}
 
+			// it could work on JetFormBuilder >=3.1.0
+			if ( ! function_exists( 'jet_fb_context' ) ) {
+				return;
+			}
+
 			add_action( 'after_setup_theme', array( $this, 'init_components' ), 0 );
 
 		}
