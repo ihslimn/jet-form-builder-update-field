@@ -23,6 +23,10 @@ class Additional_Block_Attributes {
 	}
 
 	public function append_empty_option( $args ) {
+
+		if ( $args['type'] === 'checkbox-field' && ! is_array( $args['default'] ) ) {
+			$args['default'] = array( $args['default'] );
+		}
 		
 		if ( ! empty( $args['field_options'] ) ) {
 			return $args;
