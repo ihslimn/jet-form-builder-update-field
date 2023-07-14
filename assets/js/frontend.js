@@ -15,10 +15,6 @@
 
 			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
 
-				$( `[data-update-field-name="${node.dataset.updateFieldName}"]` ).on( 'change', function() {
-					changed[ formId ][ node.dataset.updateFieldName ] = true;
-				} );
-
 				if ( ! node.dataset.updateListenTo ) {
 					return;
 				}
@@ -68,6 +64,8 @@
 			}
 
 			watchedField.value.watch( function() {
+
+				changed[ formId ][ watched ] = true;
 
 				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-listen-to]` ),
 				      formFields      = getFormValues( observable );
