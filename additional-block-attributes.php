@@ -19,6 +19,8 @@ class Additional_Block_Attributes {
 
 		add_filter( 'jet-form-builder/render/checkbox-field', array( $this, 'append_empty_option' ) );
 		add_filter( 'jet-form-builder/render/radio-field', array( $this, 'append_empty_option' ) );
+
+		add_filter( 'jet-form-builder/render/hidden-field', array( $this, 'add_attributes_hidden' ), 0, 2 );
 		
 	}
 
@@ -76,6 +78,22 @@ class Additional_Block_Attributes {
 		}
 
 		$block->add_attribute( 'data-update-listen-all', ! empty( $attrs['jfb_update_fields_listen_all'] ) ? 1 : 0 );
+
+	}
+
+	public function add_attributes_hidden( $attrs, $block ) {
+
+		if ( empty( $attrs['jfb_update_fields_value_enabled'] ) || empty( $attrs['jfb_update_fields_field_to_listen'] ) ) {
+			return $attrs;
+		}
+
+		$block->add_attribute( 'data-update-listen-to', $attrs['jfb_update_fields_field_to_listen'] );
+
+		$block->add_attribute( 'data-update-listen-all', ! empty( $attrs['jfb_update_fields_listen_all'] ) ? 1 : 0 );
+
+		$block->add_attribute( 'data-update-field-name', $attrs['name'] );
+
+		return $attrs;
 
 	}
 
