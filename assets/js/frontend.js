@@ -28,7 +28,19 @@
 			} );
 
 			for ( const key in fieldMap[ formId ] ) {
+
 				setWatcher( observable.form.getFormId(), key );
+				
+				const input = observable.getInput( key );
+
+				if ( ! input || ! input.value ) {
+					continue;
+				}
+
+				const value = input.value.current;
+				input.value.current = 'jfb_update_related_init_watcher';
+				input.value.current = value;
+				
 			}
 
 		}
@@ -64,6 +76,10 @@
 			}
 
 			watchedField.value.watch( function() {
+
+				if ( this.current === 'jfb_update_related_init_watcher' ) {
+					return;
+				}
 
 				changed[ formId ][ watched ] = true;
 
