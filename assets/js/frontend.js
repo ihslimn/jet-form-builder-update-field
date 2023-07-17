@@ -188,7 +188,18 @@
 			clearSelectOptions( updatedNode );
 
 			$.each( options, function( i, option ) {
-				$( updatedNode ).find( 'select' ).append( $( "<option></option>" ).attr( "value", option.value ).text( option.label ) )
+
+				let opt = document.createElement( 'option' );
+
+				opt.setAttribute( 'value', option.value );
+				opt.innerHTML = option.label;
+
+				if ( Object.hasOwn( option, 'calculate' ) ) {
+					opt.setAttribute( 'data-calculate', option.calculate );
+				}
+
+				$( updatedNode ).find( 'select' ).append( opt );
+
 			} );
 
 		}
