@@ -65,6 +65,18 @@
 
 		}
 
+		function styleCalculated( updatedCalculated, type = 'add' ) {
+
+			updatedCalculated.forEach( function( calculated ) {
+				if ( type === 'add' ) {
+					calculated.classList.add( 'jfb-updated-field' );
+				} else {
+					calculated.classList.remove( 'jfb-updated-field' );
+				}
+			} );
+
+		}
+
 		function setWatcher( formId, watched ) {
 
 			const observable   = JetFormBuilder[ formId ],
@@ -95,7 +107,8 @@
 					}
 
 					const updated      = updatedNode.dataset.updateFieldName,
-					      updatedField = observable.getInput( updated );
+					      updatedField = observable.getInput( updated ),
+					      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` );
 
 					if ( updatedNode.dataset.updateListenAll === '1' ) {
 						
@@ -115,6 +128,8 @@
 
 					updatedNode.classList.add( 'jfb-updated-field' );
 
+					styleCalculated( updatedCalculated, 'add' )
+
 					wp.apiFetch( {
 						method: 'post',
 						path: '/jet-form-builder-update-field-addon/v1/get-field',
@@ -126,6 +141,8 @@
 					} ).then( ( response ) => {
 	
 						updatedNode.classList.remove( 'jfb-updated-field' );
+
+						styleCalculated( updatedCalculated, 'remove' )
 
 						if ( ! response.type ) {
 							throw new Error('Invalid response');
@@ -160,6 +177,7 @@
 	
 					} ).catch( function ( e ) {
 						updatedNode.classList.remove( 'jfb-updated-field' );
+						styleCalculated( updatedCalculated, 'remove' )
 						console.error(e);
 					} );
 
