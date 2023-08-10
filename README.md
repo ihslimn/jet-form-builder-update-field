@@ -10,6 +10,7 @@ This example **requires** JetEngine to be installed; otherwise, custom options G
 
 ![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/8f31ccba-6075-4325-93fe-fb6d43ece251)
 
+See https://jetformbuilder.com/features/multi-optional-field-source-settings/ to set up a field using Get values list from JetEngine Query generator
 
 2. In the query, you may use the fact that form fields values are stored to `$_REQUEST['jfb_update_related_' . $field_name]`, e.g. `$_REQUEST['jfb_update_related_select1']`
 to update options accordingly. In this example, in the field 'select2' we get posts, related to post selected in the field 'select1'
