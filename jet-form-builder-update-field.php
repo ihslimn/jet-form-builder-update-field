@@ -82,8 +82,15 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 		}
 
 		public function register_macros() {
+
 			require_once $this->path . 'macros/form-field-value.php';
 			new Form_Field_Value();
+
+			if ( function_exists( 'jet_apb' ) ) {
+				require_once $this->path . 'macros/appointment-provider.php';
+				new Appointment_Provider();
+			}
+
 		}
 
 		public function enable_strict_mode( $settings ) {
