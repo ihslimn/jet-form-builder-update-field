@@ -31,6 +31,8 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public $db = null;
 
+		public $storage = null;
+
 		public function __construct() {
 
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );
@@ -68,11 +70,20 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 			new Endpoint();
 			require $this->path . 'additional-block-attributes.php';
 			new Additional_Block_Attributes();
+			require $this->path . 'storage.php';
+			$this->storage = new Storage();
 
 			add_action( 'enqueue_block_editor_assets', array( $this, 'block_assets' ), 10 );
 
 			add_filter( 'jet-form-builder/frontend-settings', array( $this, 'enable_strict_mode' ) );
 
+			add_action( 'jet-engine/register-macros', array( $this, 'register_macros' ) );
+
+		}
+
+		public function register_macros() {
+			require_once $this->path . 'macros/form-field-value.php';
+			new Form_Field_Value();
 		}
 
 		public function enable_strict_mode( $settings ) {

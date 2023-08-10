@@ -43,6 +43,7 @@ class Endpoint {
 
 		foreach ( $form_fields as $name => $value ) {
 			$_REQUEST['jfb_update_related_' . $name] = $value;
+			Plugin::instance()->storage->save_field_value( $name, $value );
 		}
 
 		$blocks = Block_Helper::get_blocks_by_post( $form_id );
