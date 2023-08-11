@@ -38,6 +38,7 @@
 				}
 
 				const value = input.value.current;
+
 				input.value.current = 'jfb_update_related_init_watcher';
 				input.value.current = value;
 				
@@ -161,10 +162,12 @@
 								
 								$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
 								
+								maybeInitListingTemplate( updatedNode, updatedField );
+
 								if ( response.isEmpty ) {
-									updatedNode.classList.add('empty-field');
+									updatedNode.setAttribute( 'data-update-field-is-empty', 'true' );
  								} else {
-									updatedNode.classList.remove('empty-field');
+									updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
 								}
 
 								break;
@@ -182,6 +185,36 @@
 					} );
 
 				} );
+
+			} );
+
+		}
+
+		function maybeInitListingTemplate( updatedNode, updatedField ) {
+
+			if ( ! updatedNode.querySelectorAll('.jet-form-builder__field-template').length ) {
+				return;
+			}
+
+			if ( ! JetPlugins.hooks.actions['jet.fb.input.makeReactive'].handlers.length ) {
+				return;
+			}
+
+			const handlers = JetPlugins.hooks.actions['jet.fb.input.makeReactive'].handlers;
+
+			handlers.forEach( function( handler ) {
+				
+				if ( handler.namespace === 'jet-form-builder/listing-options' ) {
+					
+					const callback = handler.callback;
+
+					if ( ! callback ) {
+						return;
+					}
+
+					callback( updatedField );
+
+				}
 
 			} );
 

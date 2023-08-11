@@ -65,7 +65,7 @@ class Additional_Block_Attributes {
 		}
 
 		if ( $this->add_class( $attrs ) && ! empty( $attrs['jfb_update_fields_options_enabled'] ) && empty( $attrs['field_options'] ) ) {
-			$block->add_attribute( 'class', 'empty-field' );
+			$block->add_attribute( 'data-update-field-is-empty', 'true' );
 		}
 
 		if ( ! $this->script_enqueued ) {
