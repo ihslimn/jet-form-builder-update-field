@@ -33,6 +33,8 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public $storage = null;
 
+		public $version = '1.0.0';
+
 		public function __construct() {
 
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );
@@ -53,9 +55,17 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 			}
 
-			// it could work on JetFormBuilder >=3.1.0
+			// it can work only on JetFormBuilder >=3.1.0
 			if ( ! function_exists( 'jet_fb_context' ) ) {
+
+				add_action( 'admin_notices', function() {
+					$class = 'notice notice-error';
+					$message = '<b>WARNING!</b> <b>JetFormBuilder - Update Fields</b> plugin requires <b>JetFormBuilder</b> plugin to be update to version 3.1+.';
+					printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
+				} );
+
 				return;
+
 			}
 
 			add_action( 'after_setup_theme', array( $this, 'init_components' ), 0 );
@@ -107,7 +117,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 				'jfb-update-field',
 				plugins_url( 'assets/js/blocks.js', __FILE__ ),
 				array( 'wp-components', 'wp-element', 'wp-blocks', 'wp-block-editor', 'wp-edit-post', 'lodash' ),
-				'1.0.0',
+				$this->version,
 				false
 			);
 

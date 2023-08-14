@@ -93,6 +93,11 @@ class Additional_Block_Attributes {
 
 		$block->add_attribute( 'data-update-field-name', $attrs['name'] );
 
+		if ( ! $this->script_enqueued ) {
+			$this->enqueue_script();
+			$this->script_enqueued = true;
+		}
+
 		return $attrs;
 
 	}
@@ -103,7 +108,7 @@ class Additional_Block_Attributes {
 			'jfb-update-field-frontend',
 			plugins_url( 'assets/js/frontend.js', __FILE__ ),
 			array( 'jquery' ),
-			'1.0.0',
+			Plugin::instance()->version,
 			true
 		);
 
@@ -111,7 +116,7 @@ class Additional_Block_Attributes {
 			'jfb-update-field-frontend',
 			plugins_url( 'assets/css/frontend.css', __FILE__ ),
 			array(),
-			'1.0.0',
+			Plugin::instance()->version,
 			false
 		);
 
