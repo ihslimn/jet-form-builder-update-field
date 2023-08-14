@@ -13,6 +13,17 @@
 
 			changed[ formId ] = [];
 
+			observable.rootNode.querySelectorAll( 'select[data-default-val]' ).forEach( function( el ) {
+
+				const input  = observable.getInput( el.name ),
+					  defVal = el.dataset.defaultVal; 
+				
+				if ( input.value.current !== defVal ) {
+					input.value.current = defVal;
+				}
+
+			} );
+
 			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
 
 				if ( ! node.dataset.updateListenTo ) {
