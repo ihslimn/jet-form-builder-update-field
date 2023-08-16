@@ -44,7 +44,7 @@
 				
 				const input = observable.getInput( key );
 
-				if ( ! input || ! input.value ) {
+				if ( ! input || ! input.value || input.inputType === "repeater" ) {
 					continue;
 				}
 
@@ -65,7 +65,7 @@
 
 			formFields.forEach( function( input ) {
 
-				if ( undefined === input?.value?.current ) {
+				if ( undefined === input?.value?.current || input.inputType === "repeater" ) {
 					return;
 				}
 
@@ -242,7 +242,17 @@
 		}
 
 		function clearSelectOptions( updatedNode ) {
-			$( updatedNode ).find( 'select option:gt(0)' ).remove();
+        	
+            const $firstEmpty = $( updatedNode ).find( 'select option:first-child' );
+			
+            let param = ':gt(0)';
+            
+            if ( $firstEmpty[0]?.value ) {
+            	param = '';
+            }
+            
+			$( updatedNode ).find( 'select option' + param ).remove();
+
 		}
 
 		function updateSelectOptions( updatedNode, options ) {
