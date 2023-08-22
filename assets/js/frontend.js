@@ -2,11 +2,13 @@
 
 	function( $ ) {
 
-		$( window ).on( 'jet-form-builder/after-init', initWatchers );
-
 		let fieldMap = {},
 			changed  = {},
 			JetABAF  = {};
+
+		$( window ).on( 'jet-form-builder/after-init', initWatchers );
+
+		$( document ).on( 'jet-form-builder/ajax/on-success', updateAllFields );
 
 		function initWatchers( initEvent, $scope, observable ) {
 
@@ -32,8 +34,6 @@
 				observable.rootNode.querySelectorAll( '[data-update-field-name].field-type-check-in-out' ).forEach( function( node ) {
 					JetABAF[ formId ][ node.dataset.updateFieldName ] = node.querySelector( '[format]' )?.dataset?.format ?? JetABAFInput.field_format;
 				} );
-
-				console.log( JetABAF );
 
 			}
 
@@ -61,10 +61,44 @@
 					continue;
 				}
 
-				const value = input.value.current;
+				triggerUpdate( input );
+				
+			}
 
-				input.value.current = 'jfb_update_related_init_watcher';
-				input.value.current = value;
+		}
+
+		function triggerUpdate( input ) {
+
+			const value = input.value.current;
+
+			input.value.current = 'jfb_update_related_init_watcher';
+			input.value.current = value;
+
+		}
+
+		function updateAllFields( event, response, $form ) {
+
+			const formId = $form.data( 'form-id' );
+
+			if ( ! fieldMap[ formId ] ) {
+				return;
+			}
+
+			const observable = JetFormBuilder[ formId ];
+
+			if ( ! observable ) {
+				return;
+			}
+
+			for ( const key in fieldMap[ formId ] ) {
+				
+				const input = observable.getInput( key );
+
+				if ( ! input || ! input.value || input.inputType === "repeater" ) {
+					continue;
+				}
+
+				triggerUpdate( input );
 				
 			}
 
