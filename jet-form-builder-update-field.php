@@ -41,6 +41,16 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		}
 
+		public function plugin_path( $path = '' ) {
+			
+			if ( ! $this->path ) {
+				$this->path = trailingslashit( plugin_dir_path( __FILE__ ) );
+			}
+
+			return $this->path . $path;
+
+		}
+
 		public function jec_init() {
 
 			if ( ! function_exists( 'jet_form_builder' ) ) {
@@ -74,14 +84,19 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public function init_components() {
 
-			$this->path = plugin_dir_path( __FILE__ );
+			$this->path = trailingslashit( plugin_dir_path( __FILE__ ) );
 
-			require $this->path . 'rest-api/endpoint.php';
+			require $this->plugin_path( 'rest-api/endpoint.php' );
 			new Endpoint();
-			require $this->path . 'additional-block-attributes.php';
+
+			require $this->plugin_path( 'additional-block-attributes.php' );
 			new Additional_Block_Attributes();
-			require $this->path . 'storage.php';
+
+			require $this->plugin_path( 'storage.php' );
 			$this->storage = new Storage();
+
+			require $this->plugin_path( 'compatibility/manager.php' );
+			new Compatibility\Compatibility_Manager();
 
 			add_action( 'enqueue_block_editor_assets', array( $this, 'block_assets' ), 10 );
 
@@ -93,13 +108,8 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public function register_macros() {
 
-			require_once $this->path . 'macros/form-field-value.php';
-			new Form_Field_Value();
-
-			if ( function_exists( 'jet_apb' ) ) {
-				require_once $this->path . 'macros/appointment-provider.php';
-				new Appointment_Provider();
-			}
+			require_once $this->plugin_path( 'macros/form-field-value.php' );
+			new Macros\Form_Field_Value();
 
 		}
 

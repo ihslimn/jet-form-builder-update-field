@@ -1,6 +1,8 @@
 <?php
 
-namespace JFB_Update_Field;
+namespace JFB_Update_Field\Macros;
+
+use \JFB_Update_Field\Plugin;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {

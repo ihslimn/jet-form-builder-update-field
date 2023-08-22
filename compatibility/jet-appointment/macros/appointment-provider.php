@@ -1,6 +1,8 @@
 <?php
 
-namespace JFB_Update_Field;
+namespace JFB_Update_Field\Macros;
+
+use \JFB_Update_Field\Plugin;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -14,7 +16,7 @@ class Appointment_Provider extends \Jet_Engine_Base_Macros {
 	}
 
 	public function macros_name() {
-		return 'JFB Update Field - Appointment Provider';
+		return 'JFB Update Field - JetAppointment Provider';
 	}
 
 	public function macros_args() {

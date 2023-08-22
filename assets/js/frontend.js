@@ -5,7 +5,8 @@
 		$( window ).on( 'jet-form-builder/after-init', initWatchers );
 
 		let fieldMap = {},
-			changed  = {};
+			changed  = {},
+			JetABAF  = {};
 
 		function initWatchers( initEvent, $scope, observable ) {
 
@@ -23,6 +24,18 @@
 				}
 
 			} );
+
+			if ( window.JetABAFInput ) {
+
+				JetABAF[ formId ] = {};
+
+				observable.rootNode.querySelectorAll( '[data-update-field-name].field-type-check-in-out' ).forEach( function( node ) {
+					JetABAF[ formId ][ node.dataset.updateFieldName ] = node.querySelector( '[format]' )?.dataset?.format ?? JetABAFInput.field_format;
+				} );
+
+				console.log( JetABAF );
+
+			}
 
 			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
 
@@ -59,7 +72,8 @@
 
 		function getFormValues( observable ) {
 
-			const formFields = observable.getInputs();
+			const formFields = observable.getInputs(),
+			      formId = observable.form.getFormId();
 
 			let formValues = {};
 
@@ -70,6 +84,10 @@
 				}
 
 				formValues[ input.name ] = input.value.current;
+
+				if ( JetABAF[ formId ]?.[ input.name ] ) {
+					formValues[ input.name + '_jfbuf_timestamp_array' ] = JetBooking.stringToTimestamp( input.value.current, ' - ', JetABAF[ formId ][ input.name ] );
+				}
 
 			} );
 
@@ -244,7 +262,7 @@
 		function clearSelectOptions( updatedNode ) {
         	
             const $firstEmpty = $( updatedNode ).find( 'select option:first-child' );
-			
+
             let param = ':gt(0)';
             
             if ( $firstEmpty[0]?.value ) {
