@@ -69,6 +69,10 @@ class Available_Units extends \Jet_Engine_Base_Macros {
 		);
 
 		$available_units = jet_abaf()->db->get_available_units( $booking );
+
+		if ( empty( $available_units ) ) {
+			return '';
+		}
 		
 		return implode( ',', array_column( $available_units, 'unit_id' ) );
 
