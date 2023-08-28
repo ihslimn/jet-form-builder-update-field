@@ -69,10 +69,7 @@
 
 		function triggerUpdate( input ) {
 
-			const value = input.value.current;
-
-			input.value.current = 'jfb_update_related_init_watcher';
-			input.value.current = value;
+			input.value.notify();
 
 		}
 
