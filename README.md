@@ -6,6 +6,8 @@ Updating field options
 ---
 This example **requires** JetEngine to be installed; otherwise, custom options Generator should be created - see Advanced section.
 
+Works for Select, Radio, Checkboxes fields
+
 1. Enable options updater, set the field to get options from JetEngine Query Generator
 
 ![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/8f31ccba-6075-4325-93fe-fb6d43ece251)
@@ -21,9 +23,13 @@ We set Related Items macro to get initial object ID from jfb_update_related_sele
 
 Don't forget to set a fallback, so that up until selection in 'select1' there will be no posts in 'select2'
 
+---
+
 Updating field value
 ---
 This example **requires** JetEngine to be installed; otherwise, use custom callback - see Advanced section
+
+Works for Text, Textarea, Hidden fields
 
 1. Enable value updater
 
@@ -36,6 +42,8 @@ This example **requires** JetEngine to be installed; otherwise, use custom callb
 ![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/6cef835d-cdb3-4a77-83f9-c21508bee53c)
 
 Like in Updating field options example, we use jfb_update_related_select1 variable. Don't forget to set a fallback too.
+
+---
 
 Advanced
 ---
