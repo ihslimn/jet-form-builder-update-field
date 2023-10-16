@@ -55,8 +55,8 @@ class Available_Units extends \Jet_Engine_Base_Macros {
 			return '';
 		}
 
-		$in  = $bounds['start'];
-		$out = $bounds['end'];
+		$in  = $bounds['start'] ?? false;
+		$out = $bounds['end'] ?? false;
 
 		if ( ! $in || ! $out ) {
 			return '';
