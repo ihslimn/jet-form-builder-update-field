@@ -18,6 +18,8 @@ class Jet_Appointment {
     public function register_macros() {
         require_once Plugin::instance()->plugin_path( 'compatibility/jet-appointment/macros/appointment-provider.php' );
 		new \JFB_Update_Field\Macros\Appointment_Provider();
+        require_once Plugin::instance()->plugin_path( 'compatibility/jet-appointment/macros/appointment-service.php' );
+		new \JFB_Update_Field\Macros\Appointment_Service();
     }
 
 }
