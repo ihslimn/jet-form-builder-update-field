@@ -9,14 +9,14 @@ if ( ! defined( 'WPINC' ) ) {
 	die();
 }
 
-class Appointment_Provider extends \Jet_Engine_Base_Macros {
+class Appointment_Service extends \Jet_Engine_Base_Macros {
 
 	public function macros_tag() {
-		return 'jfbuf_appointment_provider';
+		return 'jfbuf_appointment_service';
 	}
 
 	public function macros_name() {
-		return 'JFB Update Field - JetAppointment Provider';
+		return 'JFB Update Field - JetAppointment Service';
 	}
 
 	public function macros_args() {
@@ -49,28 +49,28 @@ class Appointment_Provider extends \Jet_Engine_Base_Macros {
 			return '';
 		}
 
-		$service_id    = $post->ID;
+		$provider_id    = $post->ID;
 		$services_cpt  = jet_apb()->settings->get( 'services_cpt' );
 		$providers_cpt = jet_apb()->settings->get( 'providers_cpt' );
 
-		if ( ! $service_id || ! $services_cpt || ! $providers_cpt ) {
+		if ( ! $provider_id || ! $services_cpt || ! $providers_cpt ) {
 			return '';
 		}
 
-		$providers = jet_engine()->relations->get_related_posts(
+		$services = jet_engine()->relations->get_related_posts(
 			array( 
 				'post_type_1' => $services_cpt, 
 				'post_type_2' => $providers_cpt, 
-				'post_id'     => $service_id, 
-				'from'        => $providers_cpt, 
+				'post_id'     => $provider_id, 
+				'from'        => $services_cpt, 
 			) 
 		);
 
-		if ( ! is_array( $providers ) ) {
-			$providers = array( $providers );
+		if ( ! is_array( $services ) ) {
+			$services = array( $services );
 		}
 
-		return implode( ',', $providers );
+		return implode( ',', $services );
 
 	}
 }
