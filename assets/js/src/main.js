@@ -1,5 +1,6 @@
 import registerAttributes from './attributes';
 import './controls';
+import registerListingUpdater from './blocks/listing-updater';
 
 const {
 	      addFilter,
@@ -7,6 +8,12 @@ const {
 
 addFilter(
 	'blocks.registerBlockType',
-	'jet-form-builder/switch-page-on-change-support',
+	'jfb-update-field/block-attributes',
 	registerAttributes,
 );
+
+function registerBlocks() {
+	registerListingUpdater();
+}
+
+document.addEventListener( 'jet-form-builder-initialized', registerBlocks );

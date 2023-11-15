@@ -1,4 +1,4 @@
-import { FIELD_TO_LISTEN, LISTEN_ALL, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, SUPPORTED_BLOCKS, CALLBACK } from './constants';
+import { FIELD_TO_LISTEN, LISTEN_ALL, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, SUPPORTED_BLOCKS, CALLBACK, UPDATE_ON_BUTTON, BUTTON_NAME } from './constants';
 
 function registerAttributes( settings, name ) {
 
@@ -25,6 +25,14 @@ function registerAttributes( settings, name ) {
 			default: false,
 		},
 		[ CALLBACK ]: {
+			type: 'string',
+			default: '',
+		},
+		[ UPDATE_ON_BUTTON ]: {
+			type: 'boolean',
+			default: false,
+		},
+		[ BUTTON_NAME ]: {
 			type: 'string',
 			default: '',
 		},

@@ -4,11 +4,33 @@
 
 		let fieldMap = {},
 			changed  = {},
-			JetABAF  = {};
+			JetABAF  = {},
+			listings = [];
 
 		$( window ).on( 'jet-form-builder/after-init', initWatchers );
 
 		$( document ).on( 'jet-form-builder/ajax/on-success', updateAllFields );
+
+		document.querySelectorAll( 'button[data-update-button-name]' ).forEach( function( button ) {
+			button.addEventListener( 'click', handleUpdateButton );
+		} );
+
+		function handleUpdateButton() {
+
+			const form   = this.closest( 'form' ),
+			      formId = form?.dataset?.formId;
+
+			if ( ! formId ) {
+				return;
+			}
+
+			const buttonName = this.dataset.updateButtonName;
+
+			form.querySelectorAll( `[data-update-on-button="${buttonName}"]` ).forEach( function( updatedNode ) {
+				updateFormField( updatedNode, formId, this );
+			} );
+
+		}
 
 		function initWatchers( initEvent, $scope, observable ) {
 
@@ -51,9 +73,11 @@
 
 			} );
 
+			observable.rootNode.querySelectorAll( '.jfbuf-listing-updater' );
+
 			for ( const key in fieldMap[ formId ] ) {
 
-				setWatcher( observable.form.getFormId(), key );
+				setFieldWatcher( observable.form.getFormId(), key );
 				
 				const input = observable.getInput( key );
 
@@ -68,9 +92,7 @@
 		}
 
 		function triggerUpdate( input ) {
-
 			input.value.notify();
-
 		}
 
 		function updateAllFields( event, response, $form ) {
@@ -128,6 +150,10 @@
 
 		function styleCalculated( updatedCalculated, type = 'add' ) {
 
+			if ( ! updatedCalculated ) {
+				return;
+			}
+
 			updatedCalculated.forEach( function( calculated ) {
 				if ( type === 'add' ) {
 					calculated.classList.add( 'jfb-updated-field' );
@@ -138,7 +164,74 @@
 
 		}
 
-		function setWatcher( formId, watched ) {
+		function updateFormField( updatedNode, formId, button = null ) {
+
+			const updated = updatedNode.dataset.updateFieldName,
+			      observable = JetFormBuilder[ formId ],
+			      formFields = getFormValues( observable ),
+			      updatedField = observable.getInput( updated ),
+			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` );
+
+			updatedNode.classList.add( 'jfb-updated-field' );
+
+			styleCalculated( updatedCalculated, 'add' );
+
+			wp.apiFetch( {
+				method: 'post',
+				path: '/jet-form-builder-update-field-addon/v1/get-field',
+				data: {
+					"form_id"     : formId,
+					"field_name"  : updated,
+					"form_fields" : formFields,
+				}
+			} ).then( ( response ) => {
+
+				updatedNode.classList.remove( 'jfb-updated-field' );
+
+				styleCalculated( updatedCalculated, 'remove' )
+
+				if ( ! response.type ) {
+					throw new Error('Invalid response');
+				}
+
+				switch ( response.type ) {
+
+					case 'value':
+						updatedField.value.current = response.value;
+						break;
+					case 'block':
+
+						maybeClearInput( updatedField );
+
+						let html = $( response.value ).html() || '';
+						
+						$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
+						
+						maybeInitListingTemplate( updatedNode, updatedField );
+
+						if ( response.isEmpty ) {
+							updatedNode.setAttribute( 'data-update-field-is-empty', 'true' );
+						 } else {
+							updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
+						}
+
+						break;
+					case 'options':
+						maybeClearInput( updatedField );
+						updateSelectOptions( updatedNode, response.value );
+						break;
+
+				}
+
+			} ).catch( function ( e ) {
+				updatedNode.classList.remove( 'jfb-updated-field' );
+				styleCalculated( updatedCalculated, 'remove' )
+				console.error(e);
+			} );
+
+		}
+
+		function setFieldWatcher( formId, watched ) {
 
 			const observable   = JetFormBuilder[ formId ],
 			      watchedField = observable.getInput( watched );
@@ -150,14 +243,9 @@
 
 			watchedField.value.watch( function() {
 
-				if ( this.current === 'jfb_update_related_init_watcher' ) {
-					return;
-				}
-
 				changed[ formId ][ watched ] = true;
 
-				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-listen-to]` ),
-				      formFields      = getFormValues( observable );
+				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
 
 				dependentFields.forEach( function( updatedNode ) {
 
@@ -166,10 +254,6 @@
 					if ( allWatched.indexOf( watched ) < 0 ) {
 						return;
 					}
-
-					const updated      = updatedNode.dataset.updateFieldName,
-					      updatedField = observable.getInput( updated ),
-					      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` );
 
 					if ( updatedNode.dataset.updateListenAll === '1' ) {
 						
@@ -187,62 +271,7 @@
 
 					}
 
-					updatedNode.classList.add( 'jfb-updated-field' );
-
-					styleCalculated( updatedCalculated, 'add' )
-
-					wp.apiFetch( {
-						method: 'post',
-						path: '/jet-form-builder-update-field-addon/v1/get-field',
-						data: {
-							"form_id"     : formId,
-							"field_name"  : updated,
-							"form_fields" : formFields,
-						}
-					} ).then( ( response ) => {
-	
-						updatedNode.classList.remove( 'jfb-updated-field' );
-
-						styleCalculated( updatedCalculated, 'remove' )
-
-						if ( ! response.type ) {
-							throw new Error('Invalid response');
-						}
-
-						switch ( response.type ) {
-
-							case 'value':
-								updatedField.value.current = response.value;
-								break;
-							case 'block':
-
-								maybeClearInput( updatedField );
-
-								let html = $( response.value ).html() || '';
-								
-								$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
-								
-								maybeInitListingTemplate( updatedNode, updatedField );
-
-								if ( response.isEmpty ) {
-									updatedNode.setAttribute( 'data-update-field-is-empty', 'true' );
- 								} else {
-									updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
-								}
-
-								break;
-							case 'options':
-								maybeClearInput( updatedField );
-								updateSelectOptions( updatedNode, response.value );
-								break;
-
-						}
-	
-					} ).catch( function ( e ) {
-						updatedNode.classList.remove( 'jfb-updated-field' );
-						styleCalculated( updatedCalculated, 'remove' )
-						console.error(e);
-					} );
+					updateFormField( updatedNode, formId );
 
 				} );
 
