@@ -17,11 +17,31 @@ See https://jetformbuilder.com/features/multi-optional-field-source-settings/ to
 2. In the query, you may use the fact that form fields values are stored to `$_REQUEST['jfb_update_related_' . $field_name]`, e.g. `$_REQUEST['jfb_update_related_select1']`
 to update options accordingly. In this example, in the field 'select2' we get posts, related to post selected in the field 'select1'
 
+**Also**, there is a macro \
+![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/98766648-e0c6-4aa9-b0da-bf75db568482) \
+ _JFB Update Field - Form Field Value_ that you can use, 
+ 
+ and a source for Relation macros \
+ ![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/7419560d-25d9-48fa-b677-942b222a9b90) \
+ added by this addon.
+
+### Examples:
+
+#### Get related items based on a form field
+
 We set Related Items macro to get initial object ID from jfb_update_related_select1, so that when we choose the post in the field 'select1', 'select2' will be populated with posts, related to post from the field 'select1'
 
 ![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/4818c002-9a58-44f9-955e-504f7794d1ce)
 
 Don't forget to set a fallback, so that up until selection in 'select1' there will be no posts in 'select2'
+
+Alternatively, use _JFB Update Field - Form Field Value_ macro to do the same: \
+![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/64520ab6-186b-4bdb-b1a2-19114ee5d39c)
+
+#### Get terms, which are children of term from the form
+
+![image](https://github.com/ihslimn/jet-form-builder-update-field/assets/57287929/55f3ae06-c1b4-44df-b352-39286e066892)
+
 
 ---
 
