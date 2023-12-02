@@ -2,12 +2,31 @@
 
 	function( $ ) {
 
-		let fieldMap = {},
-			changed  = {},
-			JetABAF  = {},
-			listings = [];
+		let fieldMap  = {},
+		    changed   = {},
+		    JetABAF   = {},
+		    aborters  = {};
 
 		$( window ).on( 'jet-form-builder/after-init', initWatchers );
+
+		$( window ).on( 'jet-form-builder/init', init );
+
+		function init() {
+
+			const {
+				addAction,
+			} = window.JetPlugins.hooks;
+
+			addAction(
+				'jet.fb.input.makeReactive',
+				'jfb-update-field/on-observe',
+				function( input ) {
+					console.log( input );
+				}
+			);
+
+			$( window ).off( 'jet-form-builder/init', init );
+		}
 
 		$( document ).on( 'jet-form-builder/ajax/on-success', updateAllFields );
 
@@ -60,6 +79,8 @@
 			}
 
 			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
+
+
 
 				if ( ! node.dataset.updateListenTo ) {
 					return;
@@ -172,9 +193,20 @@
 			      updatedField = observable.getInput( updated ),
 			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` );
 
+			if ( aborters[ updated + formId ] ) {
+				aborters[ updated + formId ].abort();
+				delete aborters[ updated + formId ];
+			}
+
+			let aborter = new AbortController();
+
+			aborters[ updated + formId ] = aborter;
+
 			updatedNode.classList.add( 'jfb-updated-field' );
 
 			styleCalculated( updatedCalculated, 'add' );
+
+			maybeClearInput( updatedField );
 
 			wp.apiFetch( {
 				method: 'post',
@@ -183,8 +215,13 @@
 					"form_id"     : formId,
 					"field_name"  : updated,
 					"form_fields" : formFields,
-				}
+				},
+				signal: aborter.signal,
 			} ).then( ( response ) => {
+
+				if ( aborter !== aborters[ updated + formId ] ) {
+					return;
+				}
 
 				updatedNode.classList.remove( 'jfb-updated-field' );
 
@@ -220,13 +257,25 @@
 						maybeClearInput( updatedField );
 						updateSelectOptions( updatedNode, response.value );
 						break;
+					default:
+						maybeClearInput( updatedField );
 
 				}
 
+				delete aborters[ updated + formId ];
+
 			} ).catch( function ( e ) {
-				updatedNode.classList.remove( 'jfb-updated-field' );
-				styleCalculated( updatedCalculated, 'remove' )
-				console.error(e);
+
+				if ( aborter === aborters[ updated + formId ] ) {
+					console.error( e );
+
+					delete aborters[ updated + formId ];
+
+					updatedNode.classList.remove( 'jfb-updated-field' );
+				
+					styleCalculated( updatedCalculated, 'remove' );
+				}
+
 			} );
 
 		}
@@ -320,15 +369,15 @@
 		}
 
 		function clearSelectOptions( updatedNode ) {
-        	
-            const $firstEmpty = $( updatedNode ).find( 'select option:first-child' );
+			
+			const $firstEmpty = $( updatedNode ).find( 'select option:first-child' );
 
-            let param = ':gt(0)';
-            
-            if ( $firstEmpty[0]?.value ) {
-            	param = '';
-            }
-            
+			let param = ':gt(0)';
+			
+			if ( $firstEmpty[0]?.value ) {
+				param = '';
+			}
+			
 			$( updatedNode ).find( 'select option' + param ).remove();
 
 		}
