@@ -3,7 +3,6 @@
 	function( $ ) {
 
 		let fieldMap  = {},
-		    changed   = {},
 		    JetABAF   = {},
 		    aborters  = {};
 
@@ -21,7 +20,22 @@
 				'jet.fb.input.makeReactive',
 				'jfb-update-field/on-observe',
 				function( input ) {
-					console.log( input );
+					
+					return;
+
+					if ( ! input.path || input.path.length < 2 ) {
+						return;
+					}
+
+					const observable  = input.getRoot(),
+					      formId      = observable.form.getFormId(),
+						  node        = input.nodes[0],
+						  updatedNode = node.closest( '[data-update-field-name]' );
+
+					setFieldWatcher( formId, input );
+
+					updateFormField( updatedNode, input.root );
+
 				}
 			);
 
@@ -53,20 +67,11 @@
 
 		function initWatchers( initEvent, $scope, observable ) {
 
+			if ( ! observable.rootNode.querySelector( '[data-update-field-name][data-update-listen-to]' ) ) {
+				return;
+			}
+
 			const formId = observable.form.getFormId();
-
-			changed[ formId ] = [];
-
-			observable.rootNode.querySelectorAll( 'select[data-default-val]' ).forEach( function( el ) {
-
-				const input  = observable.getInput( el.name ),
-					  defVal = el.dataset.defaultVal; 
-				
-				if ( input.value.current !== defVal ) {
-					input.value.current = defVal;
-				}
-
-			} );
 
 			if ( window.JetABAFInput ) {
 
@@ -79,8 +84,6 @@
 			}
 
 			observable.rootNode.querySelectorAll( '[data-update-field-name]' ).forEach( function( node ) {
-
-
 
 				if ( ! node.dataset.updateListenTo ) {
 					return;
@@ -98,9 +101,9 @@
 
 			for ( const key in fieldMap[ formId ] ) {
 
-				setFieldWatcher( observable.form.getFormId(), key );
-				
 				const input = observable.getInput( key );
+
+				setFieldWatcher( formId, input );
 
 				if ( ! input || ! input.value || input.inputType === "repeater" ) {
 					continue;
@@ -147,7 +150,7 @@
 		function getFormValues( observable ) {
 
 			const formFields = observable.getInputs(),
-			      formId = observable.form.getFormId();
+			      formId     = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId();
 
 			let formValues = {};
 
@@ -185,13 +188,17 @@
 
 		}
 
-		function updateFormField( updatedNode, formId, button = null ) {
+		function updateFormField( updatedNode, observable, button = null ) {
 
 			const updated = updatedNode.dataset.updateFieldName,
-			      observable = JetFormBuilder[ formId ],
+			      formId = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId(),
 			      formFields = getFormValues( observable ),
 			      updatedField = observable.getInput( updated ),
 			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` );
+
+			if ( ! updatedField ) {
+				return;
+			}
 
 			if ( aborters[ updated + formId ] ) {
 				aborters[ updated + formId ].abort();
@@ -205,6 +212,8 @@
 			updatedNode.classList.add( 'jfb-updated-field' );
 
 			styleCalculated( updatedCalculated, 'add' );
+
+			maybeClearSelectOptions( updatedNode )
 
 			maybeClearInput( updatedField );
 
@@ -255,7 +264,7 @@
 						break;
 					case 'options':
 						maybeClearInput( updatedField );
-						updateSelectOptions( updatedNode, response.value );
+						updateSelectOptions( updatedNode, response.value, updatedField );
 						break;
 					default:
 						maybeClearInput( updatedField );
@@ -280,10 +289,15 @@
 
 		}
 
-		function setFieldWatcher( formId, watched ) {
+		function setFieldWatcher( formId, watchedField ) {
 
-			const observable   = JetFormBuilder[ formId ],
-			      watchedField = observable.getInput( watched );
+			const observable = watchedField.root;
+
+			let watched = watchedField.rawName;
+
+			if ( watched.includes('[') ) {
+				watched = watched.replaceAll( /\[\d+\]\[/g, '[' );
+			}
 
 			if ( ! watchedField?.value ) {
 				console.error( watched + ' - No value to watch' );
@@ -292,11 +306,9 @@
 
 			watchedField.value.watch( function() {
 
-				changed[ formId ][ watched ] = true;
-
 				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
 
-				dependentFields.forEach( function( updatedNode ) {
+				for ( const updatedNode of dependentFields ) {
 
 					const allWatched = updatedNode.dataset.updateListenTo.split(',');
 
@@ -304,25 +316,9 @@
 						return;
 					}
 
-					if ( updatedNode.dataset.updateListenAll === '1' ) {
-						
-						let skip = false;
-						
-						allWatched.forEach( function( watched ) {
-							if ( ! skip && ! changed[ formId ][ watched ] ) {
-								skip = true;
-							}
-						} );
-						
-						if ( skip ) {
-							return;
-						}
+					updateFormField( updatedNode, observable );
 
-					}
-
-					updateFormField( updatedNode, formId );
-
-				} );
+				}
 
 			} );
 
@@ -368,13 +364,17 @@
 			
 		}
 
-		function clearSelectOptions( updatedNode ) {
+		function maybeClearSelectOptions( updatedNode ) {
 			
-			const $firstEmpty = $( updatedNode ).find( 'select option:first-child' );
+			const $firstOption = $( updatedNode ).find( 'select option:first-child' );
+
+			if ( ! $firstOption.length ) {
+				return;
+			}
 
 			let param = ':gt(0)';
 			
-			if ( $firstEmpty[0]?.value ) {
+			if ( $firstOption[0]?.value ) {
 				param = '';
 			}
 			
@@ -382,24 +382,31 @@
 
 		}
 
-		function updateSelectOptions( updatedNode, options ) {
+		function updateSelectOptions( updatedNode, options, input ) {
 
-			clearSelectOptions( updatedNode );
+			maybeClearSelectOptions( updatedNode );
 
-			$.each( options, function( i, option ) {
+			const selectField = $( updatedNode ).find( 'select' );
+
+			for ( const option of options ) {
 
 				let opt = document.createElement( 'option' );
 
 				opt.setAttribute( 'value', option.value );
 				opt.innerHTML = option.label;
 
-				if ( Object.hasOwn( option, 'calculate' ) ) {
+				if ( option.calculate ) {
 					opt.setAttribute( 'data-calculate', option.calculate );
 				}
 
-				$( updatedNode ).find( 'select' ).append( opt );
+				selectField.append( opt );
 
-			} );
+				if ( option.selected ) {
+					input.value.current = option.value;
+					updatedNode.querySelector( `option[value="${option.value}"]` ).setAttribute( 'selected', option.selected );
+				}
+
+			}
 
 		}
 

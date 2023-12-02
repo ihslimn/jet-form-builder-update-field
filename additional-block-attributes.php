@@ -81,21 +81,31 @@ class Additional_Block_Attributes {
 			$block->add_attribute( 'data-update-on-button', $attrs['jfb_update_fields_button_name'] );
 		}
 
-		$block->add_attribute( 'data-update-listen-all', ! empty( $attrs['jfb_update_fields_listen_all'] ) ? 1 : 0 );
-
 	}
 
 	public function add_attributes_hidden( $attrs, $block ) {
+
+		if ( empty( $attrs['name'] ) ) {
+			return $attrs;
+		}
+
+		$service_fields = array(
+			jet_fb_handler()->form_key    => true,
+			jet_fb_handler()->refer_key   => true,
+			jet_fb_handler()->post_id_key => true,
+		);
+
+		if ( isset( $service_fields[ $attrs['name'] ] ) ) {
+			return $attrs;
+		}
+
+		$block->add_attribute( 'data-update-field-name', $attrs['name'] );
 
 		if ( empty( $attrs['jfb_update_fields_value_enabled'] ) || empty( $attrs['jfb_update_fields_field_to_listen'] ) ) {
 			return $attrs;
 		}
 
 		$block->add_attribute( 'data-update-listen-to', $attrs['jfb_update_fields_field_to_listen'] );
-
-		$block->add_attribute( 'data-update-listen-all', ! empty( $attrs['jfb_update_fields_listen_all'] ) ? 1 : 0 );
-
-		$block->add_attribute( 'data-update-field-name', $attrs['name'] );
 
 		if ( ! $this->script_enqueued ) {
 			$this->enqueue_script();
