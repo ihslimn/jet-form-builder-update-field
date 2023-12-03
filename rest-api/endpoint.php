@@ -51,10 +51,18 @@ class Endpoint {
 		$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $field_name, $blocks );
 
 		if ( isset( $block['attrs']['jfb_update_fields_value_enabled'] ) ) {
+
+			$value = $this->get_value( $block['attrs'], $field_name, $form_id, $form_fields );
+
+			if ( empty( $value ) && isset( $block['attrs']['default'] ) ) {
+				$value = $block['attrs']['default'];
+			}
+
 			return array(
 				'type'  => 'value',
-				'value' => $this->get_value( $block['attrs'], $field_name, $form_id, $form_fields ),
+				'value' => $value,
 			);
+			
 		}
 
 		// set up block structure

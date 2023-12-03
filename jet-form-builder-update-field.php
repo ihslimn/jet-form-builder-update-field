@@ -98,6 +98,9 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 			require $this->plugin_path( 'compatibility/manager.php' );
 			new Compatibility\Compatibility_Manager();
 
+			require $this->plugin_path( 'blocks/manager.php' );
+			new Blocks();
+
 			add_action( 'enqueue_block_editor_assets', array( $this, 'block_assets' ), 10 );
 
 			add_filter( 'jet-form-builder/frontend-settings', array( $this, 'enable_strict_mode' ) );

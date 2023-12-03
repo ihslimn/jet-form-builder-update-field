@@ -1,4 +1,4 @@
-import { FIELD_TO_LISTEN, LISTEN_ALL, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, CALLBACK } from './constants';
+import { FIELD_TO_LISTEN, UPDATE_ON_BUTTON, LISTEN_ALL, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, CALLBACK, BUTTON_NAME } from './constants';
 import { SUPPORTED_BLOCKS } from './constants';
 
 const { addFilter } = wp.hooks;
@@ -32,8 +32,23 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 				{ isSelected &&
 					<InspectorControls>
 						<Panel>
+							{ ( supportType !== 'update_other' || attributes?.action_type === 'update' ) &&
 							<PanelBody title="Field updater" initialOpen={ false }>
 								
+								{ supportType === 'update_other' && attributes?.action_type === 'update' &&
+									<PanelRow>
+										<TextControl
+											label="Button name"
+											help={
+												'Latin lowercase letters, underscore, dash, numbers.'
+											}
+											value={ attributes[ BUTTON_NAME ] }
+											onChange={ newValue => {
+												setAttributes( { [ BUTTON_NAME ] : newValue } );
+											} }
+										/>
+									</PanelRow> 
+								}
 								{ supportType === 'options' &&
 									<PanelRow>
 										<ToggleControl
@@ -66,7 +81,35 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow>
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && 
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) &&
+									<PanelRow>
+										<ToggleControl
+											label="Update on action button"
+											help={
+												attributes[ UPDATE_ON_BUTTON ]
+													? 'Yes.'
+													: 'No.'
+											}
+											checked={ attributes[ UPDATE_ON_BUTTON ] }
+											onChange={ () => {
+												setAttributes( { [ UPDATE_ON_BUTTON ] : ! attributes[ UPDATE_ON_BUTTON ] } );
+											} }
+										/>
+									</PanelRow>
+								}
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && attributes[ UPDATE_ON_BUTTON ] &&
+									<PanelRow>
+										<TextControl
+											label="Button name"
+											help={ '' }
+											value={ attributes[ BUTTON_NAME ] }
+											onChange={ newValue => {
+												setAttributes( { [ BUTTON_NAME ] : newValue } );
+											} }
+										/>
+									</PanelRow> 
+								}
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && ! attributes[ UPDATE_ON_BUTTON ] &&
 									<PanelRow>
 										<TextControl
 											label="Fields to listen"
@@ -78,7 +121,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow> 
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) &&
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && ! attributes[ UPDATE_ON_BUTTON ] &&
 									<PanelRow>
 										<ToggleControl
 											label="Listen all"
@@ -99,7 +142,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 											<TextControl
 												label="Callback or query parameters"
 												value={ attributes[ CALLBACK ] }
-												help={ 'Callback which parameters are $item_id (value of the field that is being listened to), $field_name (this field name), $form_id (this form ID). Alternatively JetEngine query_id|property to get a specified propery from the first object from query.' }
+												help={ 'Callback which parameters are $field_name (this field name), $form_id (this form ID), $form_fields (array of all form fields). Alternatively JetEngine query_id|property to get a specified propery from the first object from query.' }
 												onChange={ newValue => {
 													setAttributes( { [ CALLBACK ] : newValue } );
 												} }
@@ -107,6 +150,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 									</PanelRow>
 								}
 							</PanelBody>
+							}
 						</Panel>
 					</InspectorControls>
 				}
