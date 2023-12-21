@@ -60,7 +60,7 @@
 			const buttonName = this.dataset.updateButtonName;
 
 			form.querySelectorAll( `[data-update-on-button="${buttonName}"]` ).forEach( function( updatedNode ) {
-				updateFormField( updatedNode, formId, this );
+				updateFormField( updatedNode, JetFormBuilder[ formId ], this );
 			} );
 
 		}
