@@ -3,7 +3,7 @@
  * Plugin Name: JetFormBuilder - Update Fields
  * Plugin URI:
  * Description: 
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      
  * Author URI:  
  * Text Domain: 
@@ -101,7 +101,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 			require $this->plugin_path( 'blocks/manager.php' );
 			new Blocks();
 
-			add_action( 'enqueue_block_editor_assets', array( $this, 'block_assets' ), 10 );
+			add_action( 'enqueue_block_editor_assets', array( $this, 'block_assets' ), -100 );
 
 			add_filter( 'jet-form-builder/frontend-settings', array( $this, 'enable_strict_mode' ) );
 
@@ -129,7 +129,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 			wp_enqueue_script(
 				'jfb-update-field',
 				plugins_url( 'assets/js/blocks.js', __FILE__ ),
-				array( 'wp-components', 'wp-element', 'wp-blocks', 'wp-block-editor', 'wp-edit-post', 'lodash' ),
+				array( 'wp-components', 'wp-element', 'wp-blocks', 'wp-block-editor', 'wp-edit-post' ),
 				$this->version,
 				false
 			);

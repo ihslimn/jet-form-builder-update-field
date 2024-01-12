@@ -295,7 +295,9 @@
 
 			let watched = watchedField.rawName;
 
-			if ( watched.includes('[') ) {
+			if ( watched.match( /^[^\[\]]+\[\]$/ ) ) {
+				watched = watchedField.name;
+			} else if ( watched.includes('[') ) {
 				watched = watched.replaceAll( /\[\d+\]\[/g, '[' );
 			}
 
@@ -304,14 +306,14 @@
 				return;
 			}
 
+			const dependentFields = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
+
 			watchedField.value.watch( function() {
-
-				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
-
+				
 				for ( const updatedNode of dependentFields ) {
 
 					const allWatched = updatedNode.dataset.updateListenTo.split(',');
-
+					
 					if ( allWatched.indexOf( watched ) < 0 ) {
 						return;
 					}
