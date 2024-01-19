@@ -73,11 +73,11 @@ class Additional_Block_Attributes {
 			$this->script_enqueued = true;
 		}
 
-		if ( ! empty( $attrs['jfb_update_fields_field_to_listen'] ) && ! $attrs['jfb_update_fields_update_on_button'] ) {
+		if ( ! empty( $attrs['jfb_update_fields_field_to_listen'] ) ) {
 			$block->add_attribute( 'data-update-listen-to', $attrs['jfb_update_fields_field_to_listen'] );
 		}
 
-		if ( $attrs['jfb_update_fields_update_on_button'] ) {
+		if ( ! empty( $attrs['jfb_update_fields_update_on_button'] ) ) {
 			$block->add_attribute( 'data-update-on-button', $attrs['jfb_update_fields_button_name'] );
 		}
 
