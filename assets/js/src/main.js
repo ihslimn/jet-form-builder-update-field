@@ -16,4 +16,4 @@ function registerBlocks() {
 	registerListingUpdater();
 }
 
-document.addEventListener( 'jet-form-builder-initialized', registerBlocks );
+//document.addEventListener( 'jet-form-builder-initialized', registerBlocks );
