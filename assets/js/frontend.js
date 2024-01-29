@@ -315,7 +315,7 @@
 					const allWatched = updatedNode.dataset.updateListenTo.split(',');
 					
 					if ( allWatched.indexOf( watched ) < 0 ) {
-						return;
+						continue;
 					}
 
 					updateFormField( updatedNode, observable );
