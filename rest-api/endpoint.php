@@ -85,9 +85,20 @@ class Endpoint {
 		$field = $blocks_module->get_field_by_name( $parser->get_type() );
 		$field->set_block_data( $parser->get_settings() );
 		
+		//since JetFormBuilder 3.3.1
+		try {
+			$module = jet_form_builder()->module( 'option-field' );
+		} catch ( \Jet_Form_Builder\Exceptions\Repository_Exception $e ) {
+			$module = false;
+		}
+
 		switch ( $parser->get_type() ) {
 			case 'checkbox-field':
 				$render = new Checkbox_Field_Render( $field );
+				//since JetFormBuilder 3.3.1
+				if ( $module ) {
+					$module->apply_field_options( $render->block_type );
+				}
 				$render->render_without_layout();
 				$options = is_array( $render->args['field_options'] ) ? $render->args['field_options'] : array();
 				return array(
@@ -97,6 +108,10 @@ class Endpoint {
 				);
 			case 'radio-field':
 				$render = new Radio_Field_Render( $field );
+				//since JetFormBuilder 3.3.1
+				if ( $module ) {
+					$module->apply_field_options( $render->block_type );
+				}
 				$render->render_without_layout();
 				$options = is_array( $render->args['field_options'] ) ? $render->args['field_options'] : array();
 				return array(
@@ -106,6 +121,10 @@ class Endpoint {
 				);
 			case 'select-field':
 				$render = new Select_Field_Render( $field );
+				//since JetFormBuilder 3.3.1
+				if ( $module ) {
+					$module->apply_field_options( $render->block_type );
+				}
 				$render->render_without_layout();
 				return array(
 					'type'    => 'options',
