@@ -217,6 +217,8 @@
 
 			maybeClearInput( updatedField );
 
+			updatedField.reporting.validityState.current = false;
+
 			wp.apiFetch( {
 				method: 'post',
 				path: '/jet-form-builder-update-field-addon/v1/get-field',
@@ -273,6 +275,16 @@
 
 				delete aborters[ updated + formId ];
 
+				const isHidden = updatedField.nodes.filter( function( node ) {
+					return node.classList.contains('hidden-field');
+				} ).length > 0;
+				
+				if ( isHidden ) {
+					$( updatedField.nodes[0] ).trigger( 'change' );
+				}
+				
+				updatedField.reporting.validityState.current = true;
+
 			} ).catch( function ( e ) {
 
 				if ( aborter === aborters[ updated + formId ] ) {
@@ -283,6 +295,8 @@
 					updatedNode.classList.remove( 'jfb-updated-field' );
 				
 					styleCalculated( updatedCalculated, 'remove' );
+
+					updatedField.reporting.validityState.current = true;
 				}
 
 			} );
