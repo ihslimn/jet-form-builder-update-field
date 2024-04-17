@@ -1,6 +1,7 @@
 import registerAttributes from './attributes';
 import './controls';
 import registerListingUpdater from './blocks/listing-updater';
+import registerUpdateFieldButton from './blocks/update-field-button';
 
 const {
 	      addFilter,
@@ -13,7 +14,8 @@ addFilter(
 );
 
 function registerBlocks() {
-	registerListingUpdater();
+	//registerListingUpdater();
+	registerUpdateFieldButton();
 }
 
-//document.addEventListener( 'jet-form-builder-initialized', registerBlocks );
+document.addEventListener( 'jet-form-builder-initialized', registerBlocks );

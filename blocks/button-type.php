@@ -14,7 +14,7 @@ class Button_Update extends Button_Type_Base {
 	}
 
 	public function label(): string {
-		return __( 'Update Field Options / Value', 'jet-form-builder' );
+		return __( 'Update Field', 'jet-form-builder' );
 	}
 
 	public function preset_label(): string {

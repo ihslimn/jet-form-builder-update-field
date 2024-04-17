@@ -122,7 +122,7 @@ class Additional_Block_Attributes {
 			'jfb-update-field-frontend',
 			plugins_url( 'assets/js/frontend.js', __FILE__ ),
 			array( 'jquery' ),
-			Plugin::instance()->version,
+			Plugin::instance()->get_version(),
 			true
 		);
 
@@ -130,7 +130,7 @@ class Additional_Block_Attributes {
 			'jfb-update-field-frontend',
 			plugins_url( 'assets/css/frontend.css', __FILE__ ),
 			array(),
-			Plugin::instance()->version,
+			Plugin::instance()->get_version(),
 			false
 		);
 

@@ -9,8 +9,6 @@ const { TextControl, ToggleControl, Panel, PanelRow, PanelBody } = wp.components
 
 const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 
-
-
 	return ( props ) => {
 
 		let blockName = props.name,

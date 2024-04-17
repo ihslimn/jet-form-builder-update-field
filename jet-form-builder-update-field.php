@@ -33,12 +33,14 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public $storage = null;
 
-		public $version = '1.0.1';
+		private $version = '1.0.2';
 
 		public function __construct() {
-
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );
+		}
 
+		public function get_version() {
+			return $this->version;
 		}
 
 		public function plugin_path( $path = '' ) {
@@ -70,7 +72,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 				add_action( 'admin_notices', function() {
 					$class = 'notice notice-error';
-					$message = '<b>WARNING!</b> <b>JetFormBuilder - Update Fields</b> plugin requires <b>JetFormBuilder</b> plugin to be update to version 3.1+.';
+					$message = '<b>WARNING!</b> <b>JetFormBuilder - Update Fields</b> plugin requires <b>JetFormBuilder</b> plugin to be updated to version 3.1+.';
 					printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
 				} );
 
@@ -130,7 +132,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 				'jfb-update-field',
 				plugins_url( 'assets/js/blocks.js', __FILE__ ),
 				array( 'wp-components', 'wp-element', 'wp-blocks', 'wp-block-editor', 'wp-edit-post' ),
-				$this->version,
+				$this->get_version(),
 				false
 			);
 
