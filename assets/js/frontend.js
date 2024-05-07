@@ -311,7 +311,11 @@
 				return;
 			}
 
-			let watched = watchedField.rawName;
+			let watched = watchedField?.rawName;
+
+			if ( ! watched ) {
+				return;
+			}
 
 			if ( watched.match( /^[^\[\]]+\[\]$/ ) ) {
 				watched = watchedField.name;
