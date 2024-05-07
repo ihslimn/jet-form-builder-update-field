@@ -305,7 +305,11 @@
 
 		function setFieldWatcher( formId, watchedField ) {
 
-			const observable = watchedField.root;
+			const observable = watchedField?.root || JetFormBuilder[ formId ];
+
+			if ( ! observable ) {
+				return;
+			}
 
 			let watched = watchedField.rawName;
 
