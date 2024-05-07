@@ -10,6 +10,7 @@ const SUPPORTED_BLOCKS = {
 				'jet-forms/radio-field' : 'options',
 				'jet-forms/checkbox-field' : 'options',
 				'jet-forms/text-field' : 'value',
+				'jet-forms/number-field' : 'value',
 				'jet-forms/textarea-field' : 'value',
 				'jet-forms/hidden-field' : 'value',
 				'jet-forms/submit-field' : 'update_other',
