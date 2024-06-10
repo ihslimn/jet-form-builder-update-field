@@ -121,7 +121,7 @@ class Additional_Block_Attributes {
 		wp_register_script(
 			'jfb-update-field-frontend',
 			plugins_url( 'assets/js/frontend.js', __FILE__ ),
-			array( 'jquery' ),
+			array( 'jquery', 'wp-api-fetch' ),
 			Plugin::instance()->get_version(),
 			true
 		);
