@@ -4,7 +4,8 @@
 
 		let fieldMap  = {},
 		    JetABAF   = {},
-		    aborters  = {};
+		    aborters  = {},
+			cache     = new Map();
 
 		$( window ).on( 'jet-form-builder/after-init', initWatchers );
 
@@ -188,17 +189,102 @@
 
 		}
 
+		function getHash( fieldName, formId, formFields ) {
+			try {  
+				return formId + fieldName + JSON.stringify( formFields );
+			} catch ( e ) {
+				return false;
+			}
+		}
+
+		function updateFieldFromResponse( params, updateCache = false ) {
+
+			const {
+				response,
+				updated,
+				formId,
+				updatedNode,
+				updatedCalculated,
+				updatedInput,
+				hash,
+			} = params;
+
+			updatedNode.classList.remove( 'jfb-updated-field' );
+
+			styleCalculated( updatedCalculated, 'remove' )
+
+			if ( ! response.type ) {
+				throw new Error('Invalid response');
+			}
+
+			switch ( response.type ) {
+
+				case 'value':
+					updatedInput.value.current = response.value;
+					break;
+				case 'block':
+
+					maybeClearInput( updatedInput );
+
+					let html = $( response.value ).html() || '';
+					
+					$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
+					
+					maybeInitListingTemplate( updatedNode, updatedInput );
+
+					if ( response.isEmpty ) {
+						updatedNode.setAttribute( 'data-update-field-is-empty', 'true' );
+					 } else {
+						updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
+					}
+
+					break;
+				case 'options':
+					maybeClearInput( updatedInput );
+					updateSelectOptions( updatedNode, response.value, updatedInput );
+					break;
+				default:
+					maybeClearInput( updatedInput );
+
+			}
+
+			if ( updateCache ) {
+				cache.set(
+					hash,
+					{
+						'response': response,
+						'time': Date.now(),
+					}
+				);
+			}
+
+			delete aborters[ updated + formId ];
+
+			const isHidden = updatedInput.nodes.filter( function( node ) {
+				return node.classList.contains('hidden-field');
+			} ).length > 0;
+			
+			if ( isHidden ) {
+				$( updatedInput.nodes[0] ).trigger( 'change' );
+			}
+			
+			updatedInput.reporting.validityState.current = true;
+
+		}
+
 		function updateFormField( updatedNode, observable, button = null ) {
 
 			const updated = updatedNode.dataset.updateFieldName,
-			      formId = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId(),
-			      formFields = getFormValues( observable ),
-			      updatedField = observable.getInput( updated ),
-			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` );
+			      updatedInput = observable.getInput( updated );
 
-			if ( ! updatedField ) {
+			if ( ! updatedInput ) {
 				return;
 			}
+
+			const formId = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId(),
+			      formFields = getFormValues( observable ),
+			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` ),
+			      cacheTime = updatedNode.dataset.cacheTime || 60;
 
 			if ( aborters[ updated + formId ] ) {
 				aborters[ updated + formId ].abort();
@@ -215,9 +301,31 @@
 
 			maybeClearSelectOptions( updatedNode )
 
-			maybeClearInput( updatedField );
+			maybeClearInput( updatedInput );
 
-			updatedField.reporting.validityState.current = false;
+			updatedInput.reporting.validityState.current = false;
+
+			const hash = getHash( updated, formId, formFields );
+
+			if ( cache.has( hash ) ) {
+				const cached = cache.get( hash );
+
+				if ( + Date.now() - + cached.time < cacheTime * 1000 ) {
+					const response = cached.response;
+					updateFieldFromResponse(
+						{
+							response,
+							updated,
+							formId,
+							updatedNode,
+							updatedCalculated,
+							updatedInput,
+							hash,
+						}
+					);
+					return;
+				}
+			}
 
 			wp.apiFetch( {
 				method: 'post',
@@ -234,56 +342,18 @@
 					return;
 				}
 
-				updatedNode.classList.remove( 'jfb-updated-field' );
-
-				styleCalculated( updatedCalculated, 'remove' )
-
-				if ( ! response.type ) {
-					throw new Error('Invalid response');
-				}
-
-				switch ( response.type ) {
-
-					case 'value':
-						updatedField.value.current = response.value;
-						break;
-					case 'block':
-
-						maybeClearInput( updatedField );
-
-						let html = $( response.value ).html() || '';
-						
-						$( updatedNode.querySelector( '.jet-form-builder__fields-group' ) ).html( html );
-						
-						maybeInitListingTemplate( updatedNode, updatedField );
-
-						if ( response.isEmpty ) {
-							updatedNode.setAttribute( 'data-update-field-is-empty', 'true' );
-						 } else {
-							updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
-						}
-
-						break;
-					case 'options':
-						maybeClearInput( updatedField );
-						updateSelectOptions( updatedNode, response.value, updatedField );
-						break;
-					default:
-						maybeClearInput( updatedField );
-
-				}
-
-				delete aborters[ updated + formId ];
-
-				const isHidden = updatedField.nodes.filter( function( node ) {
-					return node.classList.contains('hidden-field');
-				} ).length > 0;
-				
-				if ( isHidden ) {
-					$( updatedField.nodes[0] ).trigger( 'change' );
-				}
-				
-				updatedField.reporting.validityState.current = true;
+				updateFieldFromResponse(
+					{
+						response,
+						updated,
+						formId,
+						updatedNode,
+						updatedCalculated,
+						updatedInput,
+						hash,
+					},
+					true
+				);
 
 			} ).catch( function ( e ) {
 
@@ -296,7 +366,7 @@
 				
 					styleCalculated( updatedCalculated, 'remove' );
 
-					updatedField.reporting.validityState.current = true;
+					updatedInput.reporting.validityState.current = true;
 				}
 
 			} );
@@ -348,7 +418,7 @@
 
 		}
 
-		function maybeInitListingTemplate( updatedNode, updatedField ) {
+		function maybeInitListingTemplate( updatedNode, updatedInput ) {
 
 			if ( ! updatedNode.querySelectorAll('.jet-form-builder__field-template').length ) {
 				return;
@@ -370,7 +440,7 @@
 						return;
 					}
 
-					callback( updatedField );
+					callback( updatedInput );
 
 				}
 
