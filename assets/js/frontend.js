@@ -284,7 +284,7 @@
 			const formId = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId(),
 			      formFields = getFormValues( observable ),
 			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` ),
-			      cacheTime = updatedNode.dataset.cacheTime || 60;
+			      cacheTime = updatedNode.dataset.updateCacheTimeout || 60;
 
 			if ( aborters[ updated + formId ] ) {
 				aborters[ updated + formId ].abort();
@@ -310,8 +310,9 @@
 			if ( cache.has( hash ) ) {
 				const cached = cache.get( hash );
 
-				if ( + Date.now() - + cached.time < cacheTime * 1000 ) {
+				if ( + Date.now() - + cached.time < cacheTime * 1000 || cacheTime < 0 ) {
 					const response = cached.response;
+
 					updateFieldFromResponse(
 						{
 							response,

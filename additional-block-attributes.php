@@ -68,6 +68,18 @@ class Additional_Block_Attributes {
 			$block->add_attribute( 'data-update-field-is-empty', 'true' );
 		}
 
+		if ( ! empty( $attrs['jfb_update_fields_cache_enabled'] ) && ! empty( $attrs['jfb_update_fields_cache_timeout'] ) ) {
+			$block->add_attribute( 'data-update-cache-timeout', $attrs['jfb_update_fields_cache_timeout'] );
+		}
+
+		$cache_timeout = $attrs['jfb_update_fields_cache_timeout'] ?? 60;
+
+		if ( isset( $attrs['jfb_update_fields_cache_enabled'] ) && $attrs['jfb_update_fields_cache_enabled'] === false ) {
+			$cache_timeout = 0;
+		}
+
+		$block->add_attribute( 'data-update-cache-timeout', $cache_timeout );
+
 		if ( ! $this->script_enqueued ) {
 			$this->enqueue_script();
 			$this->script_enqueued = true;

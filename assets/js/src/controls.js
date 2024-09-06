@@ -1,5 +1,15 @@
-import { FIELD_TO_LISTEN, UPDATE_ON_BUTTON, LISTEN_ALL, OPTIONS_LISTENER_ENABLED, VALUE_LISTENER_ENABLED, CALLBACK, BUTTON_NAME } from './constants';
-import { SUPPORTED_BLOCKS } from './constants';
+import {
+	SUPPORTED_BLOCKS,
+	FIELD_TO_LISTEN,
+	UPDATE_ON_BUTTON,
+	LISTEN_ALL,
+	OPTIONS_LISTENER_ENABLED,
+	VALUE_LISTENER_ENABLED,
+	CALLBACK,
+	BUTTON_NAME,
+	CACHE_ENABLED,
+	CACHE_TIMEOUT,
+} from './constants';
 
 const { addFilter } = wp.hooks;
 const { createHigherOrderComponent } = wp.compose;
@@ -145,6 +155,37 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 													setAttributes( { [ CALLBACK ] : newValue } );
 												} }
 											/>
+									</PanelRow>
+								}
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) &&
+									<PanelRow>
+										<ToggleControl
+											label="Enable cache"
+											help={
+												attributes[ CACHE_ENABLED ]
+													? 'Yes.'
+													: 'No.'
+											}
+											checked={ attributes[ CACHE_ENABLED ] }
+											onChange={ () => {
+												setAttributes( { [ CACHE_ENABLED ] : ! attributes[ CACHE_ENABLED ] } );
+											} }
+										/>
+									</PanelRow>
+								}
+								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && attributes[ CACHE_ENABLED ] &&
+									<PanelRow>
+										<TextControl
+											type="number"
+											label="Cache timeout"
+											help="Cache timeout in seconds; -1 for unlimited cache time. Cache is cleared on page reload."
+											min="-1"
+											max="86400"
+											value={ attributes[ CACHE_TIMEOUT ] }
+											onChange={ newValue => {
+												setAttributes( { [ CACHE_TIMEOUT ] : newValue } );
+											} }
+										/>
 									</PanelRow>
 								}
 							</PanelBody>

@@ -5,6 +5,8 @@ const BUTTON_NAME = 'jfb_update_fields_button_name';
 const FIELD_TO_LISTEN = 'jfb_update_fields_field_to_listen';
 const CALLBACK = 'jfb_update_fields_callback';
 const LISTEN_ALL = 'jfb_update_fields_listen_all';
+const CACHE_ENABLED = 'jfb_update_fields_cache_enabled';
+const CACHE_TIMEOUT = 'jfb_update_fields_cache_timeout';
 const SUPPORTED_BLOCKS = {
 				'jet-forms/select-field' : 'options',
 				'jet-forms/radio-field' : 'options',
@@ -25,4 +27,6 @@ export {
 	LISTEN_ALL,
 	SUPPORTED_BLOCKS,
 	CALLBACK,
+	CACHE_ENABLED,
+	CACHE_TIMEOUT,
 };
