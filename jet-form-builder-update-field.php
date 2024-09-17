@@ -3,7 +3,7 @@
  * Plugin Name: JetFormBuilder - Update Fields
  * Plugin URI:
  * Description: 
- * Version:     1.1.1
+ * Version:     1.1.2
  * Author:      
  * Author URI:  
  * Text Domain: 
@@ -27,13 +27,11 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		private static $instance = null;
 
-		private $post = 0;
-
 		public $db = null;
 
 		public $storage = null;
 
-		private $version = '1.1.1';
+		private $version = '1.1.2';
 
 		public function __construct() {
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );

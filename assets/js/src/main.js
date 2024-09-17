@@ -18,4 +18,20 @@ function registerBlocks() {
 	registerUpdateFieldButton();
 }
 
+window.isJFBUF_Button_Registered = false;
+
+addFilter(
+	'jet.fb.register.fields.handler',
+	'jfb-update-field/block-attributes',
+	registerVariation
+)
+
+function registerVariation( block ) {
+	if ( ! window.isJFBUF_Button_Registered ) {
+		window.isJFBUF_Button_Registered;
+		registerUpdateFieldButton();
+	}
+	return block;
+}
+
 document.addEventListener( 'jet-form-builder-initialized', registerBlocks );
