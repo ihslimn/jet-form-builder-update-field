@@ -2,6 +2,8 @@
 
 Allows updating field options / values on another field(s) update.
 
+**Does not support Repeater fields yet!**
+
 Updating field options 
 ---
 This example **requires** JetEngine to be installed; otherwise, custom options Generator should be created - see Advanced section.
