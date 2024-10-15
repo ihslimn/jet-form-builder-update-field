@@ -33,6 +33,29 @@ class Endpoint {
 
 	}
 
+	public function get_supported_blocks( $name = '' ) {
+		$supported_blocks =  array(
+			'jet-forms/select-field'   => 'options',
+			'jet-forms/radio-field'    => 'options',
+			'jet-forms/checkbox-field' => 'options',
+			'jet-forms/text-field'     => 'value',
+			'jet-forms/number-field'   => 'value',
+			'jet-forms/textarea-field' => 'value',
+			'jet-forms/hidden-field'   => 'value',
+		);
+
+		if ( empty( $name ) ) {
+			return $supported_blocks;
+		}
+
+		return $supported_blocks[ $name ] ?? false;
+	}
+
+	public function get_support_type( $attrs ) {
+		$block_name = $attrs['blockName'];
+		return $this->get_supported_blocks( $block_name );
+	}
+
 	public function callback( $request ) {
 
 		$params = json_decode( $request->get_body() );
@@ -50,7 +73,7 @@ class Endpoint {
 
 		$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $field_name, $blocks );
 
-		if ( ! empty( $block['attrs']['jfb_update_fields_value_enabled'] ) ) {
+		if ( ! empty( $block['attrs']['jfb_update_fields_value_enabled'] ) && $this->get_support_type( $block ) === 'value' ) {
 
 			$value = $this->get_value( $block['attrs'], $field_name, $form_id, $form_fields );
 
@@ -65,10 +88,10 @@ class Endpoint {
 			
 		}
 
-		if ( empty( $block['attrs']['jfb_update_fields_options_enabled'] ) ) {
+		if ( empty( $block['attrs']['jfb_update_fields_options_enabled'] ) || $this->get_support_type( $block ) !== 'options' ) {
 			return array(
 				'type'  => 'error',
-				'value' => 'This field does not have Field Updater enabled',
+				'value' => 'This field does not have Field Updater enabled or its settings are invalid.',
 			);
 		}
 

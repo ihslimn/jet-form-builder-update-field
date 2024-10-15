@@ -11,6 +11,8 @@ import {
 	CACHE_TIMEOUT,
 } from './constants';
 
+import { isUpdaterEnabled } from './functions';
+
 const { addFilter } = wp.hooks;
 const { createHigherOrderComponent } = wp.compose;
 
@@ -89,7 +91,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow>
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) &&
+								{ ( isUpdaterEnabled( props ) ) &&
 									<PanelRow>
 										<ToggleControl
 											label="Update on action button"
@@ -105,7 +107,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow>
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && attributes[ UPDATE_ON_BUTTON ] &&
+								{ ( isUpdaterEnabled( props ) ) && attributes[ UPDATE_ON_BUTTON ] &&
 									<PanelRow>
 										<TextControl
 											label="Button name"
@@ -117,7 +119,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow> 
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && ! attributes[ UPDATE_ON_BUTTON ] &&
+								{ ( isUpdaterEnabled( props ) ) && ! attributes[ UPDATE_ON_BUTTON ] &&
 									<PanelRow>
 										<TextControl
 											label="Fields to listen"
@@ -129,14 +131,14 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow> 
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && ! attributes[ UPDATE_ON_BUTTON ] &&
+								{ ( isUpdaterEnabled( props ) ) && ! attributes[ UPDATE_ON_BUTTON ] &&
 									<PanelRow>
 										<ToggleControl
 											label="Listen all"
 											help={
 												attributes[ LISTEN_ALL ]
-													? 'Yes.'
-													: 'No.'
+													? 'All listened fields have to have value for this field to be updated'
+													: 'At least one field has to have value for this field to be updated'
 											}
 											checked={ attributes[ LISTEN_ALL ] }
 											onChange={ () => {
@@ -145,7 +147,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow>
 								}
-								{ supportType === 'value' && attributes[ VALUE_LISTENER_ENABLED ] && 
+								{ isUpdaterEnabled( props, 'value' ) && attributes[ VALUE_LISTENER_ENABLED ] && 
 									<PanelRow>
 											<TextControl
 												label="Callback or query parameters"
@@ -157,7 +159,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 											/>
 									</PanelRow>
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) &&
+								{ ( isUpdaterEnabled( props ) ) &&
 									<PanelRow>
 										<ToggleControl
 											label="Enable cache"
@@ -173,7 +175,7 @@ const addControls = createHigherOrderComponent( ( BlockEdit ) => {
 										/>
 									</PanelRow>
 								}
-								{ ( attributes[ OPTIONS_LISTENER_ENABLED ] || attributes[ VALUE_LISTENER_ENABLED ] ) && attributes[ CACHE_ENABLED ] &&
+								{ ( isUpdaterEnabled( props ) ) && attributes[ CACHE_ENABLED ] &&
 									<PanelRow>
 										<TextControl
 											type="number"
