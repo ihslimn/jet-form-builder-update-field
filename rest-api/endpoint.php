@@ -58,24 +58,61 @@ class Endpoint {
 
 	public function callback( $request ) {
 
-		$params = json_decode( $request->get_body() );
+		$params = json_decode( $request->get_body(), true );
 
-		$form_id     = $params->form_id;
-		$field_name  = $params->field_name;
-		$form_fields = ( array ) $params->form_fields;
+		$form_id     = $params['form_id'];
+		$field_name  = $params['field_name'];
+		$form_fields = $params['form_fields'];
+		
+		$storage = Plugin::instance()->storage;
 
 		foreach ( $form_fields as $name => $value ) {
 			$_REQUEST['jfb_update_related_' . $name] = $value;
-			Plugin::instance()->storage->save_field_value( $name, $value );
+			$storage->save_field_value( $name, $value );
 		}
 
+		//setup form context
 		$blocks = Block_Helper::get_blocks_by_post( $form_id );
+		jet_fb_handler()->set_form_id( $form_id );
+		jet_fb_context()->set_request( $form_fields );
+		jet_fb_context()->apply( $blocks );
+		
+		$is_repeater = preg_match( '/(?<field_name>.+)\[(?<index>\d+)\]\[(?<sub_name>.+)\]/', $field_name, $matches );
+		
+		if ( $is_repeater ) {
+			$field_name = $matches['field_name'];
+			$sub_name   = $matches['sub_name'];
+			$index      = $matches['index'];
+		}
 
 		$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $field_name, $blocks );
 
+		if ( $is_repeater && $block['blockName'] !== 'jet-forms/repeater-field' ) {
+			return array(
+				'type'  => 'error',
+				'value' => 'This field does not have Field Updater enabled or its settings are invalid.',
+			);
+		}
+
+		if ( $is_repeater && ! empty( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				if ( ! empty( $inner_block['attrs'] ) && $inner_block['attrs']['name'] === $sub_name ) {
+					$block = $inner_block;
+				}
+			}
+
+			$storage->set_context( $field_name );
+			$storage->set_index( $index );
+		}
+
 		if ( ! empty( $block['attrs']['jfb_update_fields_value_enabled'] ) && $this->get_support_type( $block ) === 'value' ) {
 
-			$value = $this->get_value( $block['attrs'], $field_name, $form_id, $form_fields );
+			$value = $this->get_value(
+				$block['attrs'],
+				$is_repeater ? $params->field_name : $field_name,
+				$form_id,
+				$form_fields
+			);
 
 			if ( empty( $value ) && isset( $block['attrs']['default'] ) ) {
 				$value = $block['attrs']['default'];
@@ -95,13 +132,14 @@ class Endpoint {
 			);
 		}
 
-		// set up block structure
-		jet_fb_context()->set_parsers(
-			$blocks
-		);
+		if ( $is_repeater ) {
+			$field_path = array( $field_name, $index, $sub_name );
+		} else {
+			$field_path = array( $field_name );
+		}
 		
 		try {
-			$parser = jet_fb_context()->resolve_parser( $params->field_name );
+			$parser = jet_fb_context()->resolve_parser( $field_path );
 		} catch ( Silence_Exception $exception ) {
 			// field not found
 			return array( 'error' => true );

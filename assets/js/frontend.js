@@ -21,8 +21,7 @@
 				'jet.fb.input.makeReactive',
 				'jfb-update-field/on-observe',
 				function( input ) {
-					
-					return;
+
 
 					if ( ! input.path || input.path.length < 2 ) {
 						return;
@@ -31,11 +30,12 @@
 					const observable  = input.getRoot(),
 					      formId      = observable.form.getFormId(),
 						  node        = input.nodes[0],
-						  updatedNode = node.closest( '[data-update-field-name]' );
+						  updatedNode = node.closest( '[data-update-field-name]' ),
+						  path = input.path;
 
 					setFieldWatcher( formId, input );
 
-					updateFormField( updatedNode, input.root );
+					triggerUpdate( input );
 
 				}
 			);
@@ -104,11 +104,11 @@
 
 				const input = observable.getInput( key );
 
-				setFieldWatcher( formId, input );
-
 				if ( ! input || ! input.value || input.inputType === "repeater" ) {
 					continue;
 				}
+
+				setFieldWatcher( formId, input );
 
 				triggerUpdate( input );
 				
@@ -150,6 +150,10 @@
 
 		function getFormValues( observable ) {
 
+			if ( observable?.parent?.root ) {
+				observable = observable.parent.root;
+			}
+
 			const formFields = observable.getInputs(),
 			      formId     = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId();
 
@@ -157,7 +161,12 @@
 
 			formFields.forEach( function( input ) {
 
-				if ( undefined === input?.value?.current || input.inputType === "repeater" ) {
+				if ( undefined === input?.value?.current ) {
+					return;
+				}
+
+				if ( input.inputType === "repeater" ) {
+					formValues[ input.name ] = getRepeaterValue( input );
 					return;
 				}
 
@@ -171,6 +180,24 @@
 
 			return formValues;
 
+		}
+
+		function getRepeaterValue( input ) {
+			
+			if ( input?.inputType !== "repeater" ) {
+				return [];
+			}
+
+			let result = [];
+
+			input.value.current.forEach( function( observable, i ) {
+				observable.getInputs().forEach( function( input ) {
+					result[ i ] ??= {};
+					result[ i ][ input.name ] = input.value.current;
+				} );
+			} );
+
+			return result;
 		}
 
 		function styleCalculated( updatedCalculated, type = 'add' ) {
@@ -274,8 +301,8 @@
 
 		function updateFormField( updatedNode, observable, button = null ) {
 
-			const updated = updatedNode.dataset.updateFieldName,
-			      updatedInput = observable.getInput( updated );
+			let updated = updatedNode.dataset.updateFieldName,
+			    updatedInput = observable.getInput( updated );
 
 			if ( ! updatedInput ) {
 				return;
@@ -286,14 +313,16 @@
 			      updatedCalculated = observable.rootNode.querySelectorAll( `[data-formula*=${updated}]` ),
 			      cacheTime = updatedNode.dataset.updateCacheTimeout || 60;
 
-			if ( aborters[ updated + formId ] ) {
-				aborters[ updated + formId ].abort();
-				delete aborters[ updated + formId ];
+			let aUpdated = ! observable?.parent?.name ? updated : updatedInput.rawName;
+
+			if ( aborters[ aUpdated + formId ] ) {
+				aborters[ aUpdated + formId ].abort();
+				delete aborters[ aUpdated + formId ];
 			}
 
 			let aborter = new AbortController();
 
-			aborters[ updated + formId ] = aborter;
+			aborters[ aUpdated + formId ] = aborter;
 
 			updatedNode.classList.add( 'jfb-updated-field' );
 
@@ -303,9 +332,11 @@
 
 			maybeClearInput( updatedInput );
 
-			updatedInput.reporting.validityState.current = false;
+			if ( updatedInput?.reporting?.validityState ) {
+				updatedInput.reporting.validityState.current = false;
+			}
 
-			const hash = getHash( updated, formId, formFields );
+			const hash = getHash( aUpdated, formId, formFields );
 
 			if ( cache.has( hash ) ) {
 				const cached = cache.get( hash );
@@ -328,18 +359,20 @@
 				}
 			}
 
+			let rUpdated = ! observable?.parent?.name ? updated : updatedInput.rawName;
+
 			wp.apiFetch( {
 				method: 'post',
 				path: '/jet-form-builder-update-field-addon/v1/get-field',
 				data: {
-					"form_id"     : formId,
-					"field_name"  : updated,
-					"form_fields" : formFields,
+					"form_id": formId,
+					"field_name": rUpdated,
+					"form_fields": formFields,
 				},
 				signal: aborter.signal,
 			} ).then( ( response ) => {
 
-				if ( aborter !== aborters[ updated + formId ] ) {
+				if ( aborter !== aborters[ aUpdated + formId ] ) {
 					return;
 				}
 
@@ -358,10 +391,10 @@
 
 			} ).catch( function ( e ) {
 
-				if ( aborter === aborters[ updated + formId ] ) {
+				if ( aborter === aborters[ aUpdated + formId ] ) {
 					console.error( e );
 
-					delete aborters[ updated + formId ];
+					delete aborters[ aUpdated + formId ];
 
 					updatedNode.classList.remove( 'jfb-updated-field' );
 				
@@ -376,7 +409,7 @@
 
 		function setFieldWatcher( formId, watchedField ) {
 
-			const observable = watchedField?.root || JetFormBuilder[ formId ];
+			let observable = watchedField?.root || JetFormBuilder[ formId ];
 
 			if ( ! observable ) {
 				return;
@@ -392,6 +425,10 @@
 				watched = watchedField.name;
 			} else if ( watched.includes('[') ) {
 				watched = watched.replaceAll( /\[\d+\]\[/g, '[' );
+				
+				if ( observable?.parent?.name ) {
+					watched = watched.replaceAll( observable.parent.name + '[', '[' );
+				}
 			}
 
 			if ( ! watchedField?.value ) {
