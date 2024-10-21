@@ -2,7 +2,7 @@
 
 Allows updating field options / values on another field(s) update.
 
-**Does not support Repeater fields yet!**
+To refer to repeater field, write inner repeater field in square braces, like `[text_field1]`.
 
 Updating field options 
 ---
