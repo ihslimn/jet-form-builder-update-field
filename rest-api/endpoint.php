@@ -95,11 +95,7 @@ class Endpoint {
 		}
 
 		if ( $is_repeater && ! empty( $block['innerBlocks'] ) ) {
-			foreach ( $block['innerBlocks'] as $inner_block ) {
-				if ( ! empty( $inner_block['attrs'] ) && $inner_block['attrs']['name'] === $sub_name ) {
-					$block = $inner_block;
-				}
-			}
+			$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $sub_name, $block['innerBlocks'] );
 
 			$storage->set_context( $field_name );
 			$storage->set_index( $index );
@@ -140,9 +136,12 @@ class Endpoint {
 		
 		try {
 			$parser = jet_fb_context()->resolve_parser( $field_path );
-		} catch ( Silence_Exception $exception ) {
+		} catch ( \Jet_Form_Builder\Exceptions\Silence_Exception $exception ) {
 			// field not found
-			return array( 'error' => true );
+			return array(
+				'type'  => 'error',
+				'value' => 'Field not found.',
+			);
 		}
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
