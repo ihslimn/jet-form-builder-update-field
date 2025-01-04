@@ -68,7 +68,6 @@ class Endpoint {
 
 		foreach ( $form_fields as $name => $value ) {
 			$_REQUEST['jfb_update_related_' . $name] = $value;
-			$storage->save_field_value( $name, $value );
 		}
 
 		//setup form context
@@ -98,7 +97,27 @@ class Endpoint {
 			$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $sub_name, $block['innerBlocks'] );
 
 			$storage->set_context( $field_name );
-			$storage->set_index( $index );
+		}
+
+		if ( $is_repeater ) {
+			$field_path = array( $field_name, $index, $sub_name );
+		} else {
+			$field_path = array( $field_name );
+		}
+		
+		try {
+			$parser = jet_fb_context()->resolve_parser( $field_path );
+		} catch ( \Jet_Form_Builder\Exceptions\Silence_Exception $exception ) {
+			// field not found
+			return array(
+				'type'  => 'error',
+				'value' => 'Field not found.',
+			);
+		}
+
+		if ( $is_repeater ) {
+			$storage->set_context( $parser->get_context() );
+			do_action( 'jet-form-builder/field-updater/request/repeater', $parser->get_context() );
 		}
 
 		if ( ! empty( $block['attrs']['jfb_update_fields_value_enabled'] ) && $this->get_support_type( $block ) === 'value' ) {
@@ -128,22 +147,6 @@ class Endpoint {
 			);
 		}
 
-		if ( $is_repeater ) {
-			$field_path = array( $field_name, $index, $sub_name );
-		} else {
-			$field_path = array( $field_name );
-		}
-		
-		try {
-			$parser = jet_fb_context()->resolve_parser( $field_path );
-		} catch ( \Jet_Form_Builder\Exceptions\Silence_Exception $exception ) {
-			// field not found
-			return array(
-				'type'  => 'error',
-				'value' => 'Field not found.',
-			);
-		}
-		
 		/** @noinspection PhpUnhandledExceptionInspection */
 		/** @var Module $blocks */
 		$blocks_module = jet_form_builder()->module( 'blocks' );

@@ -9,25 +9,14 @@ if ( ! defined( 'WPINC' ) ) {
 
 class Storage {
 
-	private $form_fields = array();
+	private $context;
 
-	private $context = '';
-	private $index   = -1;
+	public function get_values() {
+		return jet_fb_context()->resolve_request();
+	}
 
 	public function set_context( $context ) {
 		$this->context = $context;
-	}
-
-	public function set_index( $index ) {
-		$this->index = $index;
-	}
-
-	public function save_field_value( $field_name, $value ) {
-		$this->form_fields[ $field_name ] = $value;
-	}
-
-	public function get_values() {
-		return $this->form_fields;
 	}
 
 	public function get_field_value( $field_name ) {
@@ -36,14 +25,14 @@ class Storage {
 			$sub_name   = $matches['sub_name'];
 			$index      = $matches['index'];
 
-			return  $this->form_fields[ $field_name ][ $index ][ $sub_name ] ?? '';
+			return jet_fb_context()->resolve_request()[ $field_name ][ $index ][ $sub_name ] ?? '';
 		}
 
-		if ( $this->context && $this->index >= 0 && preg_match( '/\[(?<sub_name>.+)\]/', $field_name, $matches ) ) {
-			return  $this->form_fields[ $this->context ][ $this->index ][ $matches['sub_name'] ] ?? '';
+		if ( is_object( $this->context ) && method_exists( $this->context, 'get_request' ) && preg_match( '/\[(?<sub_name>.+)\]/', $field_name, $matches ) ) {
+			return $this->context->get_request()[ $matches['sub_name'] ] ?? '';
 		}
 
-		return $this->form_fields[ $field_name ] ?? '';
+		return jet_fb_context()->resolve_request()[ $field_name ] ?? '';
 	}
 
 }
