@@ -3,7 +3,7 @@
  * Plugin Name: JetFormBuilder - Update Fields
  * Plugin URI:
  * Description: 
- * Version:     1.2.2
+ * Version:     1.2.3
  * Author:      
  * Author URI:  
  * Text Domain: 
