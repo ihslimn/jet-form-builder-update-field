@@ -31,7 +31,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public $storage = null;
 
-		private $version = '1.2.2';
+		private $version = '1.2.3';
 
 		public function __construct() {
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );

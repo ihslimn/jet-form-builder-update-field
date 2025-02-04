@@ -491,8 +491,12 @@
 			if ( ! input.value?.current ) {
 				return;
 			}
-
-			input.onClear();
+			
+			if ( input.nodes?.length && input.nodes[0]?.multiple ) {
+				input.value.current = [];
+			} else {
+				input.onClear();
+			}
 			
 		}
 
