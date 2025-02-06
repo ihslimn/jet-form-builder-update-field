@@ -76,9 +76,9 @@ class Endpoint {
 		jet_fb_context()->set_request( $form_fields );
 		jet_fb_context()->apply( $blocks );
 		
-		$is_repeater = preg_match( '/(?<field_name>.+)\[(?<index>\d+)\]\[(?<sub_name>.+)\]/', $field_name, $matches );
+		$is_inner = preg_match( '/(?<field_name>.+)\[(?<index>\d+)\]\[(?<sub_name>.+)\]/', $field_name, $matches );
 		
-		if ( $is_repeater ) {
+		if ( $is_inner ) {
 			$field_name = $matches['field_name'];
 			$sub_name   = $matches['sub_name'];
 			$index      = $matches['index'];
@@ -86,20 +86,39 @@ class Endpoint {
 
 		$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $field_name, $blocks );
 
-		if ( $is_repeater && $block['blockName'] !== 'jet-forms/repeater-field' ) {
+		if ( ! $is_inner && $block['blockName'] === 'jet-forms/repeater-field' ) {
+			$params = $block['attrs']['jfb_update_fields_callback'] ?? false;
+			
+			$value = $this->get_repeater_value( $params, $field_name, $form_id, $form_fields );
+
+			if ( empty( $value ) && isset( $block['attrs']['default'] ) ) {
+				$value = $block['attrs']['default'];
+			}
+
+			if ( ! is_array( $value ) ) {
+				$value = array();
+			}
+
+			return array(
+				'type'  => 'repeater',
+				'value' => $value,
+			);
+		}
+
+		if ( $is_inner && $block['blockName'] !== 'jet-forms/repeater-field' ) {
 			return array(
 				'type'  => 'error',
 				'value' => 'This field does not have Field Updater enabled or its settings are invalid.',
 			);
 		}
 
-		if ( $is_repeater && ! empty( $block['innerBlocks'] ) ) {
+		if ( $is_inner && ! empty( $block['innerBlocks'] ) ) {
 			$block = \Jet_Form_Builder\Blocks\Block_Helper::find_block_by_name( $sub_name, $block['innerBlocks'] );
 
 			$storage->set_context( $field_name );
 		}
 
-		if ( $is_repeater ) {
+		if ( $is_inner ) {
 			$field_path = array( $field_name, $index, $sub_name );
 		} else {
 			$field_path = array( $field_name );
@@ -115,7 +134,7 @@ class Endpoint {
 			);
 		}
 
-		if ( $is_repeater ) {
+		if ( $is_inner ) {
 			$storage->set_context( $parser->get_context() );
 			do_action( 'jet-form-builder/field-updater/request/repeater', $parser->get_context() );
 		}
@@ -124,7 +143,7 @@ class Endpoint {
 
 			$value = $this->get_value(
 				$block['attrs'],
-				$is_repeater ? $params->field_name : $field_name,
+				$is_inner ? $params->field_name : $field_name,
 				$form_id,
 				$form_fields
 			);
@@ -207,8 +226,12 @@ class Endpoint {
 	public function get_value( $block_attrs, $field_name, $form_id, $form_fields ) {
 
 		$result = '';
+		
+		$callback = $block_attrs['jfb_update_fields_callback'] ?? false;
 
-		$callback = $block_attrs['jfb_update_fields_callback'];
+		if ( ! $callback ) {
+			return $result;
+		}
 
 		if ( is_callable( $callback ) ) {
 			return call_user_func( $callback, $field_name, $form_id, $form_fields );
@@ -245,6 +268,76 @@ class Endpoint {
 
 		return $result;
 
+	}
+
+	public function get_repeater_value( $params, $field_name, $form_id, $form_fields ) {
+		if ( ! function_exists( 'jet_engine' ) ) {
+			return array();
+		}
+
+		if ( ! is_array( $params ) ) {
+			$params = str_replace( 'jfbuf-repeater/', '', $params );
+			$params = explode( '/', $params );
+		}
+
+		if ( count( $params ) < 2 ) {
+			return;
+		}
+
+		$result      = array();
+		$object_type = $params[0];
+		$object_id   = $form_fields[ $params[1] ];
+
+		$object = null;
+
+		switch ( $object_type ) {
+			case 'post':
+				$object = get_post( $object_id );
+				break;
+			case 'term':
+				$object = get_term( $object_id );
+				break;
+			case 'user':
+				$object = get_user_by( 'ID', $object_id );
+				break;
+			case 'cct':
+				$module_active = jet_engine()->modules->is_module_active( 'custom-content-types' );
+
+				if ( ! $module_active ) {
+					break;
+				}
+
+				$cct_slug = $params[2] ?? false;
+
+				if ( ! $cct_slug ) {
+					break;
+				}
+
+				$type_object = \Jet_Engine\Modules\Custom_Content_Types\Module::instance()->manager->get_content_types( $cct_slug );
+
+				if ( ! $type_object ) {
+					break;
+				}
+
+				$flag = OBJECT;
+				$type_object->db->set_format_flag( $flag );
+
+				$item_id = $object_id;
+				$object  = $type_object->db->get_item( $item_id );
+				break;
+		}
+
+		if ( ! is_object( $object ) || is_wp_error( $object ) ) {
+			return array();
+		}
+
+		$result = jet_engine()->listings->data->get_meta( $field_name, $object );
+
+		if ( is_array( $result ) ) {
+			$result = array_values( $result );
+		}
+
+		return $result;
 	}
 
 }

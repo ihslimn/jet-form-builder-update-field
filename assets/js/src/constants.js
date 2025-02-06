@@ -16,6 +16,7 @@ const SUPPORTED_BLOCKS = {
 				'jet-forms/textarea-field' : 'value',
 				'jet-forms/hidden-field' : 'value',
 				'jet-forms/submit-field' : 'update_other',
+				'jet-forms/repeater-field' : 'value',
 			};
 
 export {

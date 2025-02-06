@@ -249,6 +249,21 @@
 				case 'value':
 					updatedInput.value.current = response.value;
 					break;
+				case 'repeater':
+					if ( ! Array.isArray( response.value ) ) {
+						break;
+					}
+
+					updatedInput.addNew( response.value.length );
+
+					for ( const [ i, item ] of response.value.entries() ) {
+						for ( const input of updatedInput.value.current[ i ].getInputs() ) {
+							if ( item[ input.name ] ) {
+								input.value.current = item[ input.name ];
+							}
+						}
+					}
+					break;
 				case 'block':
 
 					maybeClearInput( updatedInput );
