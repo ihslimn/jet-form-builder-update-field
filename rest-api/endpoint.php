@@ -2,6 +2,7 @@
 
 namespace JFB_Update_Field;
 
+use Jet_Engine;
 use \Jet_Form_Builder\Blocks\Block_Helper;
 use \Jet_Form_Builder\Blocks\Render\Checkbox_Field_Render;
 use \Jet_Form_Builder\Blocks\Render\Radio_Field_Render;
@@ -235,6 +236,10 @@ class Endpoint {
 
 		if ( is_callable( $callback ) ) {
 			return call_user_func( $callback, $field_name, $form_id, $form_fields );
+		}
+
+		if ( 0 === strpos( $callback, 'jet-engine-helpers/' ) ) {
+			return Jet_Engine_Helpers::apply_callback( $callback, $form_fields );
 		}
 
 		if ( ! class_exists( '\Jet_Engine\Query_Builder\Manager' ) ) {

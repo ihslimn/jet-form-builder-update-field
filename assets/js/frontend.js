@@ -92,9 +92,12 @@
 
 				fieldMap[ formId ] ??= {};
 
-				node.dataset.updateListenTo.split(',').forEach( function( listened ) {
-					fieldMap[ formId ][ listened ] = true;
-				} );
+				node.dataset.updateListenTo
+					.split(',')
+					.map( ( name => name.replaceAll( ' ', '' ) ) )
+					.forEach( function( listened ) {
+						fieldMap[ formId ][ listened ] = true;
+					} );
 
 			} );
 
@@ -457,8 +460,10 @@
 				
 				for ( const updatedNode of dependentFields ) {
 
-					const allWatched = updatedNode.dataset.updateListenTo.split(',');
-					
+					const allWatched = updatedNode.dataset.updateListenTo
+						.split(',')
+						.map( ( name ) => name.replaceAll( ' ', '' ) );
+
 					if ( allWatched.indexOf( watched ) < 0 ) {
 						continue;
 					}

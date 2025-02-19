@@ -3,7 +3,7 @@
  * Plugin Name: JetFormBuilder - Update Fields
  * Plugin URI:
  * Description: 
- * Version:     1.2.4
+ * Version:     1.2.5
  * Author:      
  * Author URI:  
  * Text Domain: 
@@ -31,7 +31,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public $storage = null;
 
-		private $version = '1.2.4';
+		private $version = '1.2.5';
 
 		public function __construct() {
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );
@@ -85,6 +85,8 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 		public function init_components() {
 
 			$this->path = trailingslashit( plugin_dir_path( __FILE__ ) );
+
+			require $this->plugin_path( 'rest-api/jet-engine-helpers.php' );
 
 			require $this->plugin_path( 'rest-api/endpoint.php' );
 			new Endpoint();
