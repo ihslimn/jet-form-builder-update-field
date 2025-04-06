@@ -77,8 +77,9 @@ class Endpoint {
 		jet_fb_context()->set_request( $form_fields );
 		jet_fb_context()->apply( $blocks );
 		
-		$is_inner = preg_match( '/(?<field_name>.+)\[(?<index>\d+)\]\[(?<sub_name>.+)\]/', $field_name, $matches );
-		
+		$is_inner = preg_match( '/(?<field_name>.+)\[(?<index>\d+)\]\[(?<sub_name>.+?)\](\[\])?/', $field_name, $matches );
+		$is_inner = filter_var( $is_inner, FILTER_VALIDATE_BOOLEAN );
+
 		if ( $is_inner ) {
 			$field_name = $matches['field_name'];
 			$sub_name   = $matches['sub_name'];
@@ -195,6 +196,7 @@ class Endpoint {
 					'type'    => 'block',
 					'value'   => $render->render_options(),
 					'isEmpty' => ( count( $options ) < 2 && empty( $options[0]['value'] ) ),
+					'isInner' => $is_inner,
 				);
 			case 'radio-field':
 				$render = new Radio_Field_Render( $field );
@@ -208,6 +210,7 @@ class Endpoint {
 					'type'    => 'block',
 					'value'   => $render->render_options(),
 					'isEmpty' => ( count( $options ) < 2 && empty( $options[0]['value'] ) ),
+					'isInner' => $is_inner,
 				);
 			case 'select-field':
 				$render = new Select_Field_Render( $field );
@@ -219,6 +222,7 @@ class Endpoint {
 				return array(
 					'type'    => 'options',
 					'value'   => $render->args['field_options'],
+					'isInner' => $is_inner,
 				);
 		}
 

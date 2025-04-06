@@ -283,6 +283,10 @@
 						updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
 					}
 
+					if ( response.isInner ) {
+						ensureInnerNames( updatedInput );
+					}
+
 					break;
 				case 'options':
 					maybeClearInput( updatedInput );
@@ -305,9 +309,14 @@
 
 			delete aborters[ updated + formId ];
 
-			const isHidden = updatedInput.nodes.filter( function( node ) {
-				return node.classList.contains('hidden-field');
-			} ).length > 0;
+			let isHidden = false;
+
+			for ( const node of updatedInput.nodes ) {
+				if ( node.classList.contains('hidden-field') ) {
+					isHidden = true;
+					break;
+				}
+			}
 			
 			if ( isHidden ) {
 				$( updatedInput.nodes[0] ).trigger( 'change' );
@@ -564,6 +573,12 @@
 
 			}
 
+		}
+
+		function ensureInnerNames( updatedInput ) {
+			for ( const node of updatedInput.nodes ) {
+				node.name = updatedInput.rawName;
+			}
 		}
 
 	}
