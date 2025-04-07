@@ -43,6 +43,8 @@ class Endpoint {
 			'jet-forms/number-field'   => 'value',
 			'jet-forms/textarea-field' => 'value',
 			'jet-forms/hidden-field'   => 'value',
+			'jet-forms/date-field'     => 'value',
+			'jet-forms/datetime-field' => 'value',
 		);
 
 		if ( empty( $name ) ) {
@@ -149,6 +151,8 @@ class Endpoint {
 				$form_id,
 				$form_fields
 			);
+
+			$value = $this->prepare_value( $value, $block );
 
 			if ( empty( $value ) && isset( $block['attrs']['default'] ) ) {
 				$value = $block['attrs']['default'];
@@ -277,6 +281,55 @@ class Endpoint {
 
 		return $result;
 
+	}
+
+	public function prepare_value( $value, $block ) {
+		$field_type = str_replace( 'jet-forms/', '', $block['blockName'] );
+
+		switch ( $field_type ) {
+			case 'date-field':
+				if ( ! is_scalar( $value ) ) {
+					return '';
+				}
+
+				$value = trim( $value );
+
+				if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ) {
+					if ( ! \Jet_Engine_Tools::is_valid_timestamp( $value ) ) {
+						$value = strtotime( $value );
+					}
+
+					if ( $value !== false ) {
+						return wp_date( 'Y-m-d', $value );
+					} else {
+						return '';
+					}
+				}
+
+				break;
+			case 'datetime-field':
+				if ( ! is_scalar( $value ) ) {
+					return '';
+				}
+				
+				$value = trim( $value );
+
+				if ( ! preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value ) ) {
+					if ( ! \Jet_Engine_Tools::is_valid_timestamp( $value ) ) {
+						$value = strtotime( $value );
+					}
+
+					if ( $value !== false ) {
+						return wp_date( 'Y-m-d H:i', $value );
+					} else {
+						return '';
+					}
+				}
+
+				break;
+		}
+
+		return $value;
 	}
 
 	public function get_repeater_value( $params, $field_name, $form_id, $form_fields ) {
