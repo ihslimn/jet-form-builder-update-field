@@ -22,11 +22,22 @@
 				'jfb-update-field/on-observe',
 				function( input ) {
 
-
 					if ( ! input.path || input.path.length < 2 ) {
 						return;
 					}
 
+					// if ( input.root.parent && ! input.root.parent.jfbFieldUpdater ) {
+					// 	input.root.parent.jfbFieldUpdater = {};
+					// 	let originalRemove = input.root.parent.remove.bind( input.root.parent );
+					// 	input.root.parent.remove = function ( observableRow ) {
+					// 		this.jfbFieldUpdater.isBlocked = true;
+					// 		originalRemove( observableRow );
+					// 		setTimeout( () => { this.jfbFieldUpdater.isBlocked = false; } );
+					// 	};
+
+					// 	console.log( input.root.parent.remove );
+					// }
+					
 					const observable  = input.getRoot(),
 					      formId      = observable.form.getFormId(),
 						  node        = input.nodes[0],
@@ -287,10 +298,14 @@
 						ensureInnerNames( updatedInput );
 					}
 
+					maybeRestoreInput( updatedInput );
+
 					break;
 				case 'options':
 					maybeClearInput( updatedInput );
 					updateSelectOptions( updatedNode, response.value, updatedInput );
+
+					maybeRestoreInput( updatedInput );
 					break;
 				default:
 					maybeClearInput( updatedInput );
@@ -331,9 +346,9 @@
 			let updated = updatedNode.dataset.updateFieldName,
 			    updatedInput = observable.getInput( updated );
 
-			if ( ! updatedInput ) {
-				return;
-			}
+			updatedInput.jfbFieldUpdater ??= {};
+
+			updatedInput.jfbFieldUpdater.prevValue = updatedInput.value.current;
 
 			const formId = observable.form ? observable.form.getFormId() : observable.parent.root.form.getFormId(),
 			      formFields = getFormValues( observable ),
@@ -527,6 +542,14 @@
 				input.onClear();
 			}
 			
+		}
+
+		function maybeRestoreInput( input ) {
+			if ( ! input?.root?.parent?.inputType === 'repeater' ) {
+				return;
+			}
+
+			input.value.current = input.jfbFieldUpdater.prevValue;
 		}
 
 		function maybeClearSelectOptions( updatedNode ) {
