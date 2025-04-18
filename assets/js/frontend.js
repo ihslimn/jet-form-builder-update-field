@@ -46,8 +46,6 @@
 
 					setFieldWatcher( formId, input );
 
-					triggerUpdate( input );
-
 				}
 			);
 
@@ -123,8 +121,6 @@
 				}
 
 				setFieldWatcher( formId, input );
-
-				triggerUpdate( input );
 				
 			}
 
@@ -478,9 +474,25 @@
 				return;
 			}
 
+			let hasDependants = false;
+
 			const dependentFields = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
 
+			for ( const updatedNode of dependentFields ) {
+				const allWatched = updatedNode.dataset.updateListenTo
+					.split(',')
+					.map( ( name ) => name.replaceAll( ' ', '' ) );
+
+				if ( allWatched.indexOf( watched ) < 0 ) {
+					continue;
+				}
+
+				hasDependants = true;
+			}
+			
 			watchedField.value.watch( function() {
+
+				const dependentFields = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
 				
 				for ( const updatedNode of dependentFields ) {
 
@@ -497,6 +509,10 @@
 				}
 
 			} );
+
+			if ( hasDependants ) {
+				triggerUpdate( watchedField );
+			}
 
 		}
 

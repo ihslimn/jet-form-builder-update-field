@@ -7,3 +7,4 @@ assets/js/package.json         export-ignore
 assets/js/package-lock.json    export-ignore
 assets/js/webpack.config.js    export-ignore
 .gitattributes                 export-ignore
+.gitignore                     export-ignore
