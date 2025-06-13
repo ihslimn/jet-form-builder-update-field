@@ -5,18 +5,18 @@
 		let fieldMap  = {},
 		    JetABAF   = {},
 		    aborters  = {},
-			cache     = new Map();
+			cache     = new Map(),
+			addAction,
+			doAction;
 
 		$( window ).on( 'jet-form-builder/after-init', initWatchers );
 
 		$( window ).on( 'jet-form-builder/init', init );
 
-		const {
-			addAction,
-			doAction,
-		} = window.JetPlugins.hooks;
-
 		function init() {
+
+			addAction = window.JetPlugins.hooks.addAction;
+			doAction = window.JetPlugins.hooks.doAction;
 
 			addAction(
 				'jet.fb.input.makeReactive',
