@@ -11,11 +11,12 @@
 
 		$( window ).on( 'jet-form-builder/init', init );
 
-		function init() {
+		const {
+			addAction,
+			doAction,
+		} = window.JetPlugins.hooks;
 
-			const {
-				addAction,
-			} = window.JetPlugins.hooks;
+		function init() {
 
 			addAction(
 				'jet.fb.input.makeReactive',
@@ -244,6 +245,7 @@
 				updatedCalculated,
 				updatedInput,
 				hash,
+				isCached,
 			} = params;
 
 			updatedNode.classList.remove( 'jfb-updated-field' );
@@ -335,6 +337,8 @@
 			
 			updatedInput.reporting.validityState.current = true;
 
+			doAction( 'jet.fbuf.input.updated', updatedInput, isCached );
+
 		}
 
 		function updateFormField( updatedNode, observable, button = null ) {
@@ -381,6 +385,7 @@
 
 				if ( + Date.now() - + cached.time < cacheTime * 1000 || cacheTime < 0 ) {
 					const response = cached.response;
+					const isCached = true;
 
 					updateFieldFromResponse(
 						{
@@ -391,6 +396,7 @@
 							updatedCalculated,
 							updatedInput,
 							hash,
+							isCached
 						}
 					);
 					return;
@@ -414,6 +420,8 @@
 					return;
 				}
 
+				const isCached = false;
+
 				updateFieldFromResponse(
 					{
 						response,
@@ -423,6 +431,7 @@
 						updatedCalculated,
 						updatedInput,
 						hash,
+						isCached
 					},
 					true
 				);
