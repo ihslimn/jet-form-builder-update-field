@@ -93,7 +93,18 @@ class Endpoint {
 		if ( ! $is_inner && $block['blockName'] === 'jet-forms/repeater-field' ) {
 			$params = $block['attrs']['jfb_update_fields_callback'] ?? false;
 			
-			$value = $this->get_repeater_value( $params, $field_name, $form_id, $form_fields );
+			if ( is_callable( $params ) ) {
+				$value = $this->get_value(
+					$block['attrs'],
+					$field_name,
+					$form_id,
+					$form_fields
+				);
+
+				$value = $this->prepare_value( $value, $block );
+			} else {
+				$value = $this->get_repeater_value( $params, $field_name, $form_id, $form_fields );
+			}
 
 			if ( empty( $value ) && isset( $block['attrs']['default'] ) ) {
 				$value = $block['attrs']['default'];
