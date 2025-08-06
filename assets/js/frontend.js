@@ -20,13 +20,23 @@
 
 			addAction(
 				'jet.fb.input.makeReactive',
+				'jfb-update-field/chain-init',
+				function( input ) {
+					input.jfbFieldUpdater ??= {};
+
+					setChainWatcher( input );
+				}
+			);
+
+			addAction(
+				'jet.fb.input.makeReactive',
 				'jfb-update-field/on-observe',
 				function( input ) {
 
 					if ( ! input.path || input.path.length < 2 ) {
 						return;
 					}
-
+return;
 					// if ( input.root.parent && ! input.root.parent.jfbFieldUpdater ) {
 					// 	input.root.parent.jfbFieldUpdater = {};
 					// 	let originalRemove = input.root.parent.remove.bind( input.root.parent );
@@ -77,7 +87,7 @@
 		}
 
 		function initWatchers( initEvent, $scope, observable ) {
-
+return;
 			if ( ! observable.rootNode.querySelector( '[data-update-field-name][data-update-listen-to]' ) ) {
 				return;
 			}
@@ -195,7 +205,7 @@
 
 		function getRepeaterValue( input ) {
 			
-			if ( input?.inputType !== "repeater" ) {
+			if ( input?.inputType !== "repeater" || ! input?.value?.current?.length ) {
 				return [];
 			}
 
@@ -399,13 +409,14 @@
 							isCached
 						}
 					);
-					return;
+
+					return Promise.resolve();
 				}
 			}
 
 			let rUpdated = ! observable?.parent?.name ? updated : updatedInput.rawName;
 
-			wp.apiFetch( {
+			let fetched = wp.apiFetch( {
 				method: 'post',
 				path: '/jet-form-builder-update-field-addon/v1/get-field',
 				data: {
@@ -436,6 +447,8 @@
 					true
 				);
 
+				console.log( updatedNode.dataset.updateFieldName + ' updated' );
+
 			} ).catch( function ( e ) {
 
 				if ( aborter === aborters[ aUpdated + formId ] ) {
@@ -452,6 +465,123 @@
 
 			} );
 
+			return fetched;
+
+		}
+
+		function setChainWatcher( input ) {
+			const observable = input.root?.parent ? input.root : input.getRoot();
+			
+			if ( ! input.value || ! observable ) {
+				return;
+			}
+
+			let inputName = input?.rawName;
+
+			if ( ! inputName ) {
+				return;
+			}
+
+			if ( inputName.match( /^[^\[\]]+\[\]$/ ) ) {
+				inputName = input.name;
+			} else if ( inputName.includes('[') ) {
+				inputName = inputName.replaceAll( /\[\d+\]\[/g, '[' );
+				
+				if ( observable?.parent?.name ) {
+					inputName = inputName.replaceAll( observable.parent.name + '[', '[' );
+					inputName = inputName.replaceAll( '[]', '' );
+				}
+			}
+
+			let dependents = getDependents( inputName, observable );
+
+			if ( ! dependents.length ) {
+				return;
+			}
+
+			observable.jfbFieldUpdater ??= {};
+			observable.jfbFieldUpdater.inputs = {};
+
+			input.jfbFieldUpdater.inputName = inputName;
+			input.jfbFieldUpdater.observable = observable;
+
+			input.value.jfbFieldUpdater = input.jfbFieldUpdater;
+			input.value.jfbFieldUpdater.input = input;
+
+			input.value.watch( updateChainLink );
+
+			triggerUpdate( input );
+		}
+
+		async function updateChainLink( prevValue ) {
+			const inputName = this.jfbFieldUpdater.inputName;
+			const observable = this.jfbFieldUpdater.observable;
+			
+			const dependents = getDependents( inputName, observable );
+
+			for ( const node of dependents ) {
+
+				const updatedName = node.dataset.updateFieldName;
+
+				const listened = getListened( node, observable );
+
+				for ( const upd of listened ) {
+					await observable.jfbFieldUpdater.inputs[ upd ];
+				}
+				
+				if ( ! observable.jfbFieldUpdater.inputs[ updatedName ] ) {
+					observable.jfbFieldUpdater.inputs[ updatedName ] = updateFormField( node, observable );
+				}
+
+				observable.jfbFieldUpdater.inputs[ updatedName ].then( () => {
+					observable.jfbFieldUpdater.inputs[ updatedName ] = false;
+				} );
+			}
+		}
+
+		function getListened( node, observable ) {
+			if ( ! node.dataset.updateListenTo ) {
+				return [];
+			}
+
+			let result = node.dataset.updateListenTo
+					.split(',')
+					.map( ( name ) => name.replaceAll( ' ', '' ) );
+
+			for ( const name of result ) {
+				const resultNode = observable.rootNode.querySelector( `[data-update-field-name="${name}"]` );
+				
+				if ( observable.rootNode ) {
+					let indirect = getListened( resultNode, observable );
+
+					for ( const indirectName of indirect ) {
+						if ( ! result.includes( indirectName ) ) {
+							result.push( indirectName );
+						}
+					}
+				}
+			}
+
+			return result;
+		}
+
+		function getDependents( inputName, observable ) {
+			let updatableInputs = observable.rootNode.querySelectorAll( `[data-update-field-name][data-update-listen-to]` );
+			let result = [];
+
+			for ( const node of updatableInputs ) {
+				const allWatched = node.dataset.updateListenTo
+					.split(',')
+					.map( ( name ) => name.replaceAll( ' ', '' ) );
+
+				if ( allWatched.indexOf( inputName ) < 0 ) {
+					continue;
+				}
+
+				result.push( node );
+			}
+
+			return result;
 		}
 
 		function setFieldWatcher( formId, watchedField ) {
