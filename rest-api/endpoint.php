@@ -158,7 +158,7 @@ class Endpoint {
 
 			$value = $this->get_value(
 				$block['attrs'],
-				$is_inner ? $params->field_name : $field_name,
+				$field_name,
 				$form_id,
 				$form_fields
 			);
