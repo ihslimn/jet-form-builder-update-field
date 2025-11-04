@@ -206,11 +206,12 @@ class Endpoint {
 					$module->apply_field_options( $render->block_type );
 				}
 				$render->render_without_layout();
+				
 				$options = is_array( $render->args['field_options'] ) ? $render->args['field_options'] : array();
 				return array(
 					'type'    => 'block',
 					'value'   => $render->render_options(),
-					'isEmpty' => ( count( $options ) < 2 && empty( $options[0]['value'] ) ),
+					'isEmpty' => Tools::is_options_empty( $options ),
 					'isInner' => $is_inner,
 				);
 			case 'radio-field':
@@ -224,7 +225,7 @@ class Endpoint {
 				return array(
 					'type'    => 'block',
 					'value'   => $render->render_options(),
-					'isEmpty' => ( count( $options ) < 2 && empty( $options[0]['value'] ) ),
+					'isEmpty' => Tools::is_options_empty( $options ),
 					'isInner' => $is_inner,
 				);
 			case 'select-field':

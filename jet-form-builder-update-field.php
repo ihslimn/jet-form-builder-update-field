@@ -3,7 +3,7 @@
  * Plugin Name: JetFormBuilder - Update Fields
  * Plugin URI:
  * Description: 
- * Version:     1.2.10
+ * Version:     1.2.11
  * Author:      
  * Author URI:  
  * Text Domain: 
@@ -31,7 +31,7 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 		public $storage = null;
 
-		private $version = '1.2.10';
+		private $version = '1.2.11';
 
 		public function __construct() {
 			add_action( 'plugins_loaded', array( $this, 'jec_init' ) );
@@ -93,6 +93,8 @@ if ( ! class_exists( '\JFB_Update_Field\Plugin' ) ) {
 
 			require $this->plugin_path( 'additional-block-attributes.php' );
 			new Additional_Block_Attributes();
+
+			require $this->plugin_path( 'tools.php' );
 
 			require $this->plugin_path( 'storage.php' );
 			$this->storage = new Storage();

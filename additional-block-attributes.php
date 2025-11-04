@@ -10,6 +10,7 @@ if ( ! defined( 'WPINC' ) ) {
 class Additional_Block_Attributes {
 
 	public $script_enqueued = false;
+	public $inline_style_printed = false;
 
 	public function __construct() {
 
@@ -36,7 +37,14 @@ class Additional_Block_Attributes {
 
 		if ( ! empty( $args['jfb_update_fields_options_enabled'] ) ) {
 			$args['field_options'] = array(
-				'' => 'This field has no options'
+				array(
+					'value' => '_jfbuf_empty1',
+					'label' => '',
+				),
+				array(
+					'value' => '_jfbuf_empty2',
+					'label' => '',
+				),
 			);
 		}
 
@@ -64,8 +72,18 @@ class Additional_Block_Attributes {
 			return;
 		}
 
-		if ( $this->add_class( $attrs ) && ! empty( $attrs['jfb_update_fields_options_enabled'] ) && empty( $attrs['field_options'] ) ) {
+		if ( $this->add_class( $attrs ) && ! empty( $attrs['jfb_update_fields_options_enabled'] ) && Tools::is_options_empty( $attrs['field_options'] ) ) {
 			$block->add_attribute( 'data-update-field-is-empty', 'true' );
+
+			//prevent CLS
+			if ( ! $this->inline_style_printed ) {
+				echo '<style id="jfbuf_inline_css">
+						[data-update-field-is-empty="true"], [data-update-field-is-empty="true"] .jet-form-builder__fields-group {
+							display: none;
+						}
+					</style>';
+				$this->inline_style_printed = true;
+			}
 		}
 
 		if ( ! empty( $attrs['jfb_update_fields_cache_enabled'] ) && ! empty( $attrs['jfb_update_fields_cache_timeout'] ) ) {
@@ -143,7 +161,6 @@ class Additional_Block_Attributes {
 			plugins_url( 'assets/css/frontend.css', __FILE__ ),
 			array(),
 			Plugin::instance()->get_version(),
-			false
 		);
 
 	}

@@ -3,6 +3,6 @@
 	pointer-events: none;
 }
 
-[data-update-field-is-empty="true"] .jet-form-builder__fields-group {
+[data-update-field-is-empty="true"], [data-update-field-is-empty="true"] .jet-form-builder__fields-group {
 	display: none;
 }

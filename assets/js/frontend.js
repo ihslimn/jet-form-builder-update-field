@@ -288,7 +288,7 @@
 
 					if ( response.isEmpty ) {
 						updatedNode.setAttribute( 'data-update-field-is-empty', 'true' );
-					 } else {
+					} else {
 						updatedNode.setAttribute( 'data-update-field-is-empty', 'false' );
 					}
 
